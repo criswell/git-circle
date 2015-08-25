@@ -109,23 +109,38 @@ def pager(line=""):
 # Define the headers and base CircleCI URLs
 HEADERS = {'Accept' : 'application/json'}
 BASE_CIRCLE_BUILD_URL = 'https://circleci.com/gh'
+BASE_API_URL = 'https://circleci.com/api/v1'
 
 # Utility methods
 def get_build_data(username, reponame, build_num):
     global PASSTOKEN
     global HEADERS
     api_url = \
-        "https://circleci.com/api/v1/project/{0}/{1}/{2}?circle-token={3}".format(
+        "{0}/project/{1}/{2}/{3}?circle-token={4}".format(BASE_API_URL,
         username, reponame, build_num, PASSTOKEN)
     r = requests.get(api_url, headers=HEADERS)
     return r.json()
 
 # Command handlers
+def list_builds_handler():
+    current_branch = None
+    try:
+        current_branch = subprocess.check_output(['git', 'symbolic-ref',
+            '-q', '--short', 'HEAD'])
+        current_branch = current_branch.strip()
+    except subprocess.CalledProcessError:
+        current_branch = None
+
+    if current_branch is None:
+        print("Problem obtaining current branch!")
+        print("Check the output of:")
+        print("\tgit symbolic-ref -q --short HEAD")
+        sys.exit(1)
+
+
+
 def list_projects_handler():
-    global PASSTOKEN
-    global BASE_CIRCLE_BUILD_URL
-    api_url = "https://circleci.com/api/v1/projects?circle-token={0}".format(
-            PASSTOKEN)
+    api_url = "{0}/projects?circle-token={1}".format(BASE_API_URL, PASSTOKEN)
     r = requests.get(api_url, headers=HEADERS)
     projects = r.json()
 
