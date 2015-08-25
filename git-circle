@@ -96,7 +96,7 @@ def list_projects():
                 '>' + Fore.RESET + Style.NORMAL)
         for b in p['branches']:
             pager(u' | Branch: {0}'.format(b))
-            for rb in p['branches'][b]['recent_builds']:
+            for rb in p['branches'][b].get('recent_builds', []):
                 outcome = rb['outcome']
                 build_num = rb['build_num']
                 pushed_at = rb['pushed_at']
