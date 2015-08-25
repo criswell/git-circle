@@ -173,14 +173,19 @@ def list_builds_handler():
         status = b['status']
         outcome = b['outcome']
         lifecycle = b['lifecycle']
+        why = b['why']
+        committer_name = b['committer_name']
+        committer_email = b['committer_email']
         pager(u' > #' + build_num.ljust(12) + ' <{0}>'.format(build_url))
         pager(u' |   Status:     ' + get_status_color(status) + \
-                status.ljust(20) + RESET_TEXT  + '\tOutcome: ' + \
+                status.ljust(20) + RESET_TEXT  + 'Outcome: ' + \
                 get_status_color(outcome) + outcome.ljust(20) + RESET_TEXT)
         pager(u' |   Lifecycle:  ' + get_status_color(lifecycle) + \
-                lifecycle.ljust(20) + RESET_TEXT)
+                lifecycle.ljust(20) + RESET_TEXT+'Why:     ' + why)
         pager(u' |   VCS URL:    {0}'.format(vcs_url))
         pager(u' |   Hash:       {0}'.format(vcs_revision))
+        pager(u' |   Committer:  {0} <{1}>'.format(committer_name,
+            committer_email))
 
         pager(u' |')
 
