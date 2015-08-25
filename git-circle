@@ -122,16 +122,22 @@ def get_build_data(username, reponame, build_num):
     return r.json()
 
 def get_outcome_color(outcome):
-    if outcome == 'success':
+    if outcome == 'success' or outcome == 'fixed':
         return Fore.GREEN + Style.BRIGHT
     elif outcome == 'failed' or outcome == 'infrastructure_fail':
         return Fore.RED + Style.BRIGHT
-    elif outcome == 'canceled':
+    elif outcome == 'canceled' or outcome == 'retried':
         return Fore.YELLOW
     elif outcome == 'timedout':
         return Fore.BLUE
     elif outcome == 'no_tests':
         return Fore.MAGENTA + Style.BRIGHT
+    elif outcome == 'not_run' or outcome == 'not_running':
+        return Fore.RED + Style.DIM
+    elif outcome == 'running':
+        return Fore.CYAN + Style.BRIGHT
+    elif outcome == 'queued' or outcome == 'scheduled':
+        return Fore.BLUE + Style.BRIGHT
 
     return Style.BRIGHT
 
@@ -165,7 +171,12 @@ def list_builds_handler():
         status = b['status']
         outcome = b['outcome']
         lifecycle = b['lifecycle']
-        message = u' >'
+        pager(u' > Status: ' + get_outcome_color(status) + status + \
+                Fore.RESET + Style.NORMAL + '\tOutcome: ' + \
+                get_outcome_color(outcome) + outcome + Fore.RESET + \
+                Style.NORMAL + '\tLifecycle: ' + \
+                get_outcome_color(lifecycle) + lifecycle + Fore.RESET + \
+                Style.NORMAL)
 
 def list_projects_handler():
     api_url = "{0}/projects?circle-token={1}".format(BASE_API_URL, PASSTOKEN)
@@ -206,6 +217,10 @@ commands = {
             'method' : list_projects_handler,
             'desc' : 'List the projects your following, along with their ' + \
                     'branches and build statuses'
+            },
+        'list-builds' : {
+            'method' : list_builds_handler,
+            'desc' : 'List the recent builds for your current branch'
             }
         }
 
