@@ -9,7 +9,10 @@ from colorama import init, Fore, Style
 
 import argparse
 parser = argparse.ArgumentParser()
+parser.add_argument("command", help="The command to run", nargs='?')
 parser.add_argument("-v", "--verbose", help="Run verbosely",
+        action="store_true")
+parser.add_argument("-l", "--list", help="List the commands available",
         action="store_true")
 args = parser.parse_args()
 
@@ -86,7 +89,8 @@ def get_build_data(username, reponame, build_num):
     r = requests.get(api_url, headers=HEADERS)
     return r.json()
 
-def list_projects():
+# Command handlers
+def list_projects_handler():
     global PASSTOKEN
     global BASE_CIRCLE_BUILD_URL
     api_url = "https://circleci.com/api/v1/projects?circle-token={0}".format(
@@ -136,5 +140,25 @@ def list_projects():
             pager(u' |')
         pager()
 
-list_projects()
+commands = {
+        'list-projects' : {
+            'method' : list_projects_handler,
+            'desc' : 'List the projects your following, along with their ' + \
+                    'branches and build statuses'
+            }
+        }
+
+# Main entry point
+if args.list:
+    key_len = len(max(commands.keys(), key=len))
+    for c in sorted(commands.keys()):
+        pager('  {0} : {1}'.format(c.rjust(key_len), commands[c]['desc']))
+    sys.exit(0)
+
+if args.command in commands:
+    commands[args.command]['method']()
+else:
+    print("Command required!")
+    parser.print_usage()
+    sys.exit(1)
 
