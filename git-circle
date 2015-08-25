@@ -7,6 +7,12 @@ import requests
 import subprocess
 from colorama import init, Fore, Style
 
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument("-v", "--verbose", help="Run verbosely",
+        action="store_true")
+args = parser.parse_args()
+
 try:
     # Win32
     from msvcrt import getch
@@ -117,10 +123,16 @@ def list_projects():
                 else:
                     message = message + Style.BRIGHT
                 
-                message = message + outcome + Fore.RESET + Style.NORMAL + \
-                    u' {0} {1} {2}'.format(build_num, pushed_at, build_url)
-                pager(message)
-                pager(u' |\t {0}/commit/{1}'.format(url, vcs_revision))
+                if args.verbose:
+                    message = message + outcome + Fore.RESET + Style.NORMAL + \
+                        u' {0} {1} {2}'.format(build_num, pushed_at, build_url)
+                    pager(message)
+                    pager(u' |\t {0}/commit/{1}'.format(url, vcs_revision))
+                else:
+                    message = message + outcome + Fore.RESET + Style.NORMAL + \
+                        u' {0} {1} {2}'.format(build_num, pushed_at,
+                        vcs_revision)
+                    pager(message)
             pager(u' |')
         pager()
 
