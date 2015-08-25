@@ -164,18 +164,23 @@ def list_builds_handler():
     builds = r.json()
     pager(u'' + Fore.YELLOW + Style.BRIGHT + current_branch + RESET_TEXT)
     for b in builds:
-        build_num = b['build_num']
+        build_num = str(b['build_num'])
         build_url = b['build_url']
         vcs_url = b['vcs_url']
         vcs_revision = b['vcs_revision']
         status = b['status']
         outcome = b['outcome']
         lifecycle = b['lifecycle']
-        pager(u' > Status: ' + get_status_color(status) + status.ljust(20) + \
-                RESET_TEXT  + '\tOutcome: ' + \
-                get_status_color(outcome) + outcome.ljust(20) + RESET_TEXT + \
-                '\tLifecycle: ' + get_status_color(lifecycle) + \
-                lifecycle.ljust(20) + RESET_TEXT)
+        pager(u' > #' + build_num.ljust(13) + 'Status: ' + \
+                get_status_color(status) + status.ljust(20) + RESET_TEXT  + \
+                '\tOutcome: ' + get_status_color(outcome) + \
+                outcome.ljust(20) + RESET_TEXT + '\tLifecycle: ' + \
+                get_status_color(lifecycle) + lifecycle.ljust(20) + RESET_TEXT)
+        pager(u' |   URL:        {0}'.format(build_url))
+        pager(u' |   VCS URL:    {0}'.format(vcs_url))
+        pager(u' |   Hash:       {0}'.format(vcs_revision))
+
+        pager()
 
 def list_projects_handler():
     api_url = "{0}/projects?circle-token={1}".format(BASE_API_URL, PASSTOKEN)
