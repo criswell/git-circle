@@ -121,6 +121,20 @@ def get_build_data(username, reponame, build_num):
     r = requests.get(api_url, headers=HEADERS)
     return r.json()
 
+def get_outcome_color(outcome):
+    if outcome == 'success':
+        return Fore.GREEN + Style.BRIGHT
+    elif outcome == 'failed' or outcome == 'infrastructure_fail':
+        return Fore.RED + Style.BRIGHT
+    elif outcome == 'canceled':
+        return Fore.YELLOW
+    elif outcome == 'timedout':
+        return Fore.BLUE
+    elif outcome == 'no_tests':
+        return Fore.MAGENTA + Style.BRIGHT
+
+    return Style.BRIGHT
+
 # Command handlers
 def list_builds_handler():
     current_branch = None
@@ -137,7 +151,21 @@ def list_builds_handler():
         print("\tgit symbolic-ref -q --short HEAD")
         sys.exit(1)
 
-
+    api_url = "{0}/project/{1}/{2}/tree/{3}?circle-token={4}".format(
+            BASE_API_URL, CIRCLE_USER, CIRCLE_PROJ, current_branch, PASSTOKEN)
+    r = requests.get(api_url, headers=HEADERS)
+    builds = r.json()
+    pager(u'' + Fore.YELLOW + Style.BRIGHT + current_branch + Fore.RESET + \
+            Style.NORMAL)
+    for b in builds:
+        build_num = b['build_num']
+        build_url = b['build_url']
+        vcs_url = b['vcs_url']
+        vcs_revision = b['vcs_revision']
+        status = b['status']
+        outcome = b['outcome']
+        lifecycle = b['lifecycle']
+        message = u' >'
 
 def list_projects_handler():
     api_url = "{0}/projects?circle-token={1}".format(BASE_API_URL, PASSTOKEN)
@@ -159,20 +187,7 @@ def list_projects_handler():
                 vcs_revision = rb['vcs_revision']
                 build_url = u'{0}/{1}/{2}/{3}'.format(BASE_CIRCLE_BUILD_URL,
                         username, reponame, build_num)
-                message = u' |-> '
-                if outcome == 'success':
-                    message = message + Fore.GREEN + Style.BRIGHT
-                elif outcome == 'failed' or outcome == 'infrastructure_fail':
-                    message = message + Fore.RED + Style.BRIGHT
-                elif outcome == 'canceled':
-                    message = message + Fore.YELLOW
-                elif outcome == 'timedout':
-                    message = message + Fore.BLUE
-                elif outcome == 'no_tests':
-                    message = message + Fore.MAGENTA + Style.BRIGHT
-                else:
-                    message = message + Style.BRIGHT
-                
+                message = u' |-> ' + get_outcome_color(outcome)
                 if args.verbose:
                     message = message + outcome + Fore.RESET + Style.NORMAL + \
                         u' {0} {1} {2}'.format(build_num, pushed_at, build_url)
