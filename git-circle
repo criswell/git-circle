@@ -48,8 +48,11 @@ PAGE_TEXT = Style.BRIGHT + \
     "Press any key to continue, Q to quit...\r" + Style.NORMAL
 CLEAR_TEXT = ' ' * len(PAGE_TEXT) + "\r"
 
-# Obtain the passtoken
+# Obtain the passtoken and circle info from git
 PASSTOKEN = None
+CIRCLE_USER = None
+CIRCLE_PROJ = None
+
 try:
     PASSTOKEN = subprocess.check_output(['git', 'config', 'git-circle.token'])
     PASSTOKEN = PASSTOKEN.strip()
@@ -58,6 +61,33 @@ except subprocess.CalledProcessError:
     print("Please set with:")
     print("\tgit config git-circle.token <token>")
     sys.exit(1)
+
+try:
+    CIRCLE_USER = subprocess.check_output(['git', 'config', 'git-circle.user'])
+    CIRCLE_USER = CIRCLE_USER.strip()
+except subprocess.CalledProcessError:
+    print("No CircleCI user found!")
+    print("Please set with:")
+    print("\tgit config git-circle.user <user>")
+    sys.exit(1)
+
+try:
+    CIRCLE_PROJ = subprocess.check_output(['git', 'config',
+        'git-circle.project'])
+    CIRCLE_PROJ = CIRCLE_PROJ.strip()
+except subprocess.CalledProcessError:
+    print("No CircleCI project found!")
+    print("Please set with:")
+    print("\tgit config git-circle.project <project>")
+    sys.exit(1)
+
+# Type conversion for Python3
+if isinstance(PASSTOKEN, bytes):
+    PASSTOKEN = PASSTOKEN.decode('utf-8')
+if isinstance(CIRCLE_USER, bytes):
+    CIRCLE_USER = CIRCLE_USER.decode('utf-8')
+if isinstance(CIRCLE_PROJ, bytes):
+    CIRCLE_PROJ = CIRCLE_PROJ.decode('utf-8')
 
 # The pagination method
 def pager(line=""):
@@ -80,6 +110,7 @@ def pager(line=""):
 HEADERS = {'Accept' : 'application/json'}
 BASE_CIRCLE_BUILD_URL = 'https://circleci.com/gh'
 
+# Utility methods
 def get_build_data(username, reponame, build_num):
     global PASSTOKEN
     global HEADERS
