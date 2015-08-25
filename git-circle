@@ -1,0 +1,128 @@
+#!/usr/bin/env python
+
+from __future__ import print_function
+import sys
+import os
+import requests
+import subprocess
+from colorama import init, Fore, Style
+
+try:
+    # Win32
+    from msvcrt import getch
+except ImportError:
+    # UNIX
+    def getch():
+        import tty, termios
+        fd = sys.stdin.fileno()
+        old = termios.tcgetattr(fd)
+        try:
+            tty.setraw(fd)
+            return sys.stdin.read(1)
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, old)
+
+init()
+
+# Initialize the pager stuff. Note, this will probably only work on *nixes
+def get_max_lines():
+    max_lines = None
+    try:
+        max_lines = subprocess.check_output(['tput', 'lines'])
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        max_lines = os.environ.get('LINES', 30)
+    return int(max_lines)
+
+MAX_PAGE_LINES = get_max_lines()
+CURRENT_LINE = 0
+PAGE_TEXT = Style.BRIGHT + \
+    "Press any key to continue, Q to quit...\r" + Style.NORMAL
+CLEAR_TEXT = ' ' * len(PAGE_TEXT) + "\r"
+
+# Obtain the passtoken
+PASSTOKEN = None
+try:
+    PASSTOKEN = subprocess.check_output(['git', 'config', 'git-circle.token'])
+    PASSTOKEN = PASSTOKEN.strip()
+except subprocess.CalledProcessError:
+    print("No CircleCI token found!")
+    print("Please set with:")
+    print("\tgit config git-circle.token <token>")
+    sys.exit(1)
+
+# The pagination method
+def pager(line=""):
+    global CURRENT_LINE
+    global MAX_PAGE_LINES
+    global PAGE_TEXT
+    global CLEAR_TEXT
+    if CURRENT_LINE > MAX_PAGE_LINES - 3:
+        print(PAGE_TEXT, end="")
+        c = getch()
+        print(CLEAR_TEXT, end="")
+        CURRENT_LINE = 0
+        MAX_PAGE_LINES = get_max_lines()
+        if c == 'q' or c == 'Q' or ord(c) == 3:
+            sys.exit(0)
+    print(line)
+    CURRENT_LINE = CURRENT_LINE + 1
+
+# Define the headers and base CircleCI URLs
+HEADERS = {'Accept' : 'application/json'}
+BASE_CIRCLE_BUILD_URL = 'https://circleci.com/gh'
+
+def get_build_data(username, reponame, build_num):
+    global PASSTOKEN
+    global HEADERS
+    api_url = \
+        "https://circleci.com/api/v1/project/{0}/{1}/{2}?circle-token={3}".format(
+        username, reponame, build_num, PASSTOKEN)
+    r = requests.get(api_url, headers=HEADERS)
+    return r.json()
+
+def list_projects():
+    global PASSTOKEN
+    global BASE_CIRCLE_BUILD_URL
+    api_url = "https://circleci.com/api/v1/projects?circle-token={0}".format(
+            PASSTOKEN)
+    r = requests.get(api_url, headers=HEADERS)
+    projects = r.json()
+
+    for p in projects:
+        url = p['vcs_url']
+        username = p['username']
+        reponame = p['reponame']
+        pager(u'' + Fore.YELLOW + Style.BRIGHT + reponame + '   <' + url + \
+                '>' + Fore.RESET + Style.NORMAL)
+        for b in p['branches']:
+            pager(u' | Branch: {0}'.format(b))
+            for rb in p['branches'][b]['recent_builds']:
+                outcome = rb['outcome']
+                build_num = rb['build_num']
+                pushed_at = rb['pushed_at']
+                vcs_revision = rb['vcs_revision']
+                build_url = u'{0}/{1}/{2}/{3}'.format(BASE_CIRCLE_BUILD_URL,
+                        username, reponame, build_num)
+                message = u' |-> '
+                if outcome == 'success':
+                    message = message + Fore.GREEN + Style.BRIGHT
+                elif outcome == 'failed' or outcome == 'infrastructure_fail':
+                    message = message + Fore.RED + Style.BRIGHT
+                elif outcome == 'canceled':
+                    message = message + Fore.YELLOW
+                elif outcome == 'timedout':
+                    message = message + Fore.BLUE
+                elif outcome == 'no_tests':
+                    message = message + Fore.MAGENTA + Style.BRIGHT
+                else:
+                    message = message + Style.BRIGHT
+                
+                message = message + outcome + Fore.RESET + Style.NORMAL + \
+                    u' {0} {1} {2}'.format(build_num, pushed_at, build_url)
+                pager(message)
+                pager(u' |\t {0}/commit/{1}'.format(url, vcs_revision))
+            pager(u' |')
+        pager()
+
+list_projects()
+
