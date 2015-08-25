@@ -121,7 +121,7 @@ def get_build_data(username, reponame, build_num):
     r = requests.get(api_url, headers=HEADERS)
     return r.json()
 
-def get_outcome_color(outcome):
+def get_status_color(outcome):
     if outcome == 'success' or outcome == 'fixed':
         return Fore.GREEN + Style.BRIGHT
     elif outcome == 'failed' or outcome == 'infrastructure_fail':
@@ -171,11 +171,11 @@ def list_builds_handler():
         status = b['status']
         outcome = b['outcome']
         lifecycle = b['lifecycle']
-        pager(u' > Status: ' + get_outcome_color(status) + status + \
+        pager(u' > Status: ' + get_status_color(status) + status + \
                 Fore.RESET + Style.NORMAL + '\tOutcome: ' + \
-                get_outcome_color(outcome) + outcome + Fore.RESET + \
+                get_status_color(outcome) + outcome + Fore.RESET + \
                 Style.NORMAL + '\tLifecycle: ' + \
-                get_outcome_color(lifecycle) + lifecycle + Fore.RESET + \
+                get_status_color(lifecycle) + lifecycle + Fore.RESET + \
                 Style.NORMAL)
 
 def list_projects_handler():
@@ -198,7 +198,7 @@ def list_projects_handler():
                 vcs_revision = rb['vcs_revision']
                 build_url = u'{0}/{1}/{2}/{3}'.format(BASE_CIRCLE_BUILD_URL,
                         username, reponame, build_num)
-                message = u' |-> ' + get_outcome_color(outcome)
+                message = u' |-> ' + get_status_color(outcome)
                 if args.verbose:
                     message = message + outcome + Fore.RESET + Style.NORMAL + \
                         u' {0} {1} {2}'.format(build_num, pushed_at, build_url)
