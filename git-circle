@@ -114,6 +114,44 @@ BASE_CIRCLE_BUILD_URL = 'https://circleci.com/gh'
 BASE_API_URL = 'https://circleci.com/api/v1'
 
 # Utility methods
+def display_build(b):
+    build_num = str(b['build_num'])
+    build_url = b['build_url']
+    vcs_url = b['vcs_url']
+    vcs_revision = b['vcs_revision']
+    status = b['status']
+    outcome = b['outcome']
+    lifecycle = b['lifecycle']
+    why = b['why']
+    committer_name = b['committer_name']
+    committer_email = b['committer_email']
+    pager(u' > #' + build_num.ljust(12) + ' <{0}>'.format(build_url))
+    pager(u' |   Status:     ' + get_status_color(status) + \
+                status.ljust(20) + RESET_TEXT  + 'Outcome: ' + \
+                get_status_color(outcome) + outcome.ljust(20) + RESET_TEXT)
+    pager(u' |   Lifecycle:  ' + get_status_color(lifecycle) + \
+                lifecycle.ljust(20) + RESET_TEXT+'Why:     ' + why)
+    pager(u' |   VCS URL:    {0}'.format(vcs_url))
+    pager(u' |   Hash:       {0}'.format(vcs_revision))
+    pager(u' |   Committer:  {0} <{1}>'.format(committer_name,
+            committer_email))
+    if args.verbose:
+        previous_build_num = str(b['previous']['build_num'])
+        previous_status = b['previous']['status']
+        subject = b['subject']
+        body = b['body']
+        start_time = b['start_time']
+        stop_time = b['stop_time']
+        pager(u' |   Start Time: ' + start_time)
+        pager(u' |   Stop Time:  ' + stop_time)
+        pager(u' |   Previous:   #' + previous_build_num.ljust(19) + \
+                    'Status: ' + get_status_color(previous_status) + \
+                    previous_status + RESET_TEXT)
+        pager(u' |   Subject:    ' + Style.BRIGHT + subject + RESET_TEXT)
+        pretty_message = textwrap.wrap(body)
+        for l in pretty_message:
+            pager(u' |      ' + l)
+
 def get_build_data(username, reponame, build_num):
     global PASSTOKEN
     global HEADERS
@@ -164,6 +202,14 @@ def get_status_color(outcome):
 # Command handlers
 def last_build_handler():
     current_branch = get_current_branch()
+    api_url = "{0}/project/{1}/{2}/tree/{3}?circle-token={4}".format(
+            BASE_API_URL, CIRCLE_USER, CIRCLE_PROJ, current_branch, PASSTOKEN)
+    r = requests.get(api_url, headers=HEADERS)
+    builds = r.json()
+    if len(builds) >= 1:
+        display_build(builds[0])
+    else:
+        print('Error! No builds found for branch {0}'.format(current_branch))
 
 def list_builds_handler():
     current_branch = get_current_branch()
@@ -174,43 +220,7 @@ def list_builds_handler():
     builds = r.json()
     pager(u'' + Fore.YELLOW + Style.BRIGHT + current_branch + RESET_TEXT)
     for b in builds:
-        build_num = str(b['build_num'])
-        build_url = b['build_url']
-        vcs_url = b['vcs_url']
-        vcs_revision = b['vcs_revision']
-        status = b['status']
-        outcome = b['outcome']
-        lifecycle = b['lifecycle']
-        why = b['why']
-        committer_name = b['committer_name']
-        committer_email = b['committer_email']
-        pager(u' > #' + build_num.ljust(12) + ' <{0}>'.format(build_url))
-        pager(u' |   Status:     ' + get_status_color(status) + \
-                status.ljust(20) + RESET_TEXT  + 'Outcome: ' + \
-                get_status_color(outcome) + outcome.ljust(20) + RESET_TEXT)
-        pager(u' |   Lifecycle:  ' + get_status_color(lifecycle) + \
-                lifecycle.ljust(20) + RESET_TEXT+'Why:     ' + why)
-        pager(u' |   VCS URL:    {0}'.format(vcs_url))
-        pager(u' |   Hash:       {0}'.format(vcs_revision))
-        pager(u' |   Committer:  {0} <{1}>'.format(committer_name,
-            committer_email))
-        if args.verbose:
-            previous_build_num = str(b['previous']['build_num'])
-            previous_status = b['previous']['status']
-            subject = b['subject']
-            body = b['body']
-            start_time = b['start_time']
-            stop_time = b['stop_time']
-            pager(u' |   Start Time: ' + start_time)
-            pager(u' |   Stop Time:  ' + stop_time)
-            pager(u' |   Previous:   #' + previous_build_num.ljust(19) + \
-                    'Status: ' + get_status_color(previous_status) + \
-                    previous_status + RESET_TEXT)
-            pager(u' |   Subject:    ' + Style.BRIGHT + subject + RESET_TEXT)
-            pretty_message = textwrap.wrap(body)
-            for l in pretty_message:
-                pager(u' |      ' + l)
-
+        display_build(b)
         pager(u' |')
 
 def list_projects_handler():
@@ -248,6 +258,11 @@ def list_projects_handler():
         pager()
 
 commands = {
+        'last' : {
+            'method' : last_build_handler,
+            'desc' : 'Display the results of the last build for ' + \
+                    'current branch'
+            },
         'list-projects' : {
             'method' : list_projects_handler,
             'desc' : 'List the projects your following, along with their ' + \
