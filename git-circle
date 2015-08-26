@@ -5,6 +5,7 @@ import sys
 import os
 import requests
 import subprocess
+import textwrap
 from colorama import init, Fore, Style
 
 import argparse
@@ -186,6 +187,18 @@ def list_builds_handler():
         pager(u' |   Hash:       {0}'.format(vcs_revision))
         pager(u' |   Committer:  {0} <{1}>'.format(committer_name,
             committer_email))
+        if args.verbose:
+            previous_build_num = str(b['previous']['build_num'])
+            previous_status = b['previous']['status']
+            subject = b['subject']
+            body = b['body']
+            pager(u' |   Previous:   #' + previous_build_num.ljust(19) + \
+                    'Status: ' + get_status_color(previous_status) + \
+                    previous_status + RESET_TEXT)
+            pager(u' |   Subject:    ' + Style.BRIGHT + subject + RESET_TEXT)
+            pretty_message = textwrap.wrap(body)
+            for l in pretty_message:
+                pager(u' |      ' + l)
 
         pager(u' |')
 
