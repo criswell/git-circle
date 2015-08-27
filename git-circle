@@ -8,6 +8,11 @@ import subprocess
 import textwrap
 from colorama import init, Fore, Style
 
+try:
+    from urllib.parse import urlparse
+except ImportError:
+    from urlparse import urlparse
+
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("command", help="The command to run", nargs='?')
@@ -161,6 +166,18 @@ def get_build_data(build_num):
     r = requests.get(api_url, headers=HEADERS)
     return r.json()
 
+def get_commit_url(vcs_url, vcs_revision):
+    purl = urlparse(vcs_url)
+    commit_url = None
+    if 'github' in purl.netloc.lower():
+        commit_url = u'{0}/commit/{1}'.format(vcs_url, vcs_revision)
+    elif 'bitbucket' in purl.netloc.lower():
+        commit_url = u'{0}/commits/{1}'.format(vcs_url, vcs_revision)
+    else:
+        commit_url = u'<{0}> SHA:{1}'.format(vcs_url, vcs_revision)
+
+    return commit_url
+
 def get_current_branch():
     current_branch = None
     try:
@@ -262,7 +279,7 @@ def list_projects_handler():
                     message = message + outcome + RESET_TEXT + \
                         u' {0} {1} {2}'.format(build_num, pushed_at, build_url)
                     pager(message)
-                    pager(u' |\t {0}/commit/{1}'.format(url, vcs_revision))
+                    pager(u' |\t {0}'.format(get_commit_(url, vcs_revision)))
                 else:
                     message = message + outcome + RESET_TEXT + \
                         u' {0} {1} {2}'.format(build_num, pushed_at,
