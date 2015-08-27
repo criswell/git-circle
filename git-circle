@@ -327,7 +327,7 @@ def list_builds_handler():
 
     if args.stats:
         pager()
-        header = u'BUILD TOTALS'
+        header = u'               BUILD TOTALS'
         spacer = u'-' * len(header)
         pager(header)
         pager(spacer)
