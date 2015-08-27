@@ -164,6 +164,13 @@ def display_build(b):
         for l in pretty_message:
             pager(u' |      ' + l)
 
+def display_build_totals(build_outcomes):
+    key_len = len(max(build_outcomes.keys(), key=len))
+    for outcome in sorted(build_outcomes.keys()):
+        message = u' ' + get_status_color(outcome) + outcome.rjust(key_len) + \
+                RESET_TEXT + u' : ' + str(build_outcomes[outcome])
+        pager(message)
+
 def get_build_data(build_num):
     api_url = \
         "{0}/project/{1}/{2}/{3}?circle-token={4}".format(BASE_API_URL,
@@ -304,15 +311,31 @@ def last_build_handler():
 def list_builds_handler():
     builds = get_latest_builds()
     pager(u'' + Fore.YELLOW + Style.BRIGHT + get_current_branch() + RESET_TEXT)
+    total_builds = len(builds)
+    build_outcomes = {}
     for b in builds:
         display_build(b)
         pager(u' |')
+        if b['outcome'] in build_outcomes:
+            build_outcomes[b['outcome']] = build_outcomes[b['outcome']] + 1
+        else:
+            build_outcomes[b['outcome']] = 1
+
+    if args.stats:
+        pager()
+        header = u'BUILD TOTALS'
+        spacer = u'-' * len(header)
+        pager(header)
+        pager(spacer)
+        display_build_totals(build_outcomes)
 
 def list_projects_handler():
     api_url = "{0}/projects?circle-token={1}".format(BASE_API_URL, PASSTOKEN)
     r = requests.get(api_url, headers=HEADERS)
     projects = r.json()
 
+    total_builds = 0
+    build_outcomes = {}
     for p in projects:
         url = p['vcs_url']
         username = p['username']
@@ -322,7 +345,12 @@ def list_projects_handler():
         for b in p['branches']:
             pager(u' | Branch: {0}'.format(b))
             for rb in p['branches'][b].get('recent_builds', []):
+                total_builds = total_builds + 1
                 outcome = rb['outcome']
+                if outcome in build_outcomes:
+                    build_outcomes[outcome] = build_outcomes[outcome] + 1
+                else:
+                    build_outcomes[outcome] = 1
                 build_num = rb['build_num']
                 pushed_at = rb['pushed_at']
                 vcs_revision = rb['vcs_revision']
@@ -342,6 +370,13 @@ def list_projects_handler():
                     pager(message)
             pager(u' |')
         pager()
+
+    if args.stats:
+        header = u'BUILD TOTALS ACROSS ALL PROJECTS'
+        spacer = u'-' * len(header)
+        pager(header)
+        pager(spacer)
+        display_build_totals(build_outcomes)
 
 commands = {
         'artifacts' : {
