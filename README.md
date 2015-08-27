@@ -8,9 +8,9 @@ it, but it's in flux and will change quite a bit in the coming days or weeks.
 
 Stay tuned.
 
-# `git-circle` Commands
+## `git-circle` Commands
 
-## `list-projects`
+### `list-projects`
 
 This command will list the projects you are following, along with their
 branches which have run on CircleCI and the statuses of the most recent
@@ -22,7 +22,7 @@ Usage:
 git circle list-projects [-v] [-np]
 ```
 
-## `last`
+### `last`
 
 This command will display the results of the last build for your current
 branch.
@@ -33,7 +33,7 @@ Usage:
 git circle last [-v] [-np]
 ```
 
-## `build`
+### `build`
 
 This command will display the results of a given build. If called with a build
 number, will use that build. If called without a build number, will use the
@@ -45,7 +45,7 @@ Usage:
 git circle build [build_number] [-v] [-np]
 ```
 
-## `list-builds`
+### `list-builds`
 
 This command will list the recent builds for a given branch. If called with a
 branch name, will find the recent builds for that branch. If called without a
