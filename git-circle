@@ -201,8 +201,8 @@ def display_build(b):
     pager(u' |   Committer:  {0} <{1}>'.format(committer_name,
             committer_email))
     if args.verbose:
-        subject = b['subject']
-        body = b['body']
+        subject = str(b['subject'])
+        body = str(b['body'])
         start_time = b['start_time']
         stop_time = b['stop_time']
         build_time = b['build_time_millis']
