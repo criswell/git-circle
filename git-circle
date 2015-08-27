@@ -26,6 +26,9 @@ parser.add_argument("-l", "--list", help="List the commands available",
         action="store_true")
 parser.add_argument("-s", "--stats", help="Display useful stats at the end",
         action="store_true")
+parser.add_argument("--limit", help="Change the default limit for the " + \
+        "underlying CircleCI API call (default 30, max 100)", type=int,
+        default=30)
 args = parser.parse_args()
 
 try:
@@ -154,8 +157,8 @@ def display_build(b):
         body = b['body']
         start_time = b['start_time']
         stop_time = b['stop_time']
-        pager(u' |   Start Time: ' + start_time)
-        pager(u' |   Stop Time:  ' + stop_time)
+        pager(u' |   Start Time: ' + str(start_time))
+        pager(u' |   Stop Time:  ' + str(stop_time))
         pager(u' |   Previous:   #' + previous_build_num.ljust(19) + \
                     'Status: ' + get_status_color(previous_status) + \
                     previous_status + RESET_TEXT)
@@ -180,8 +183,9 @@ def get_build_data(build_num):
 
 def get_latest_builds():
     current_branch = get_current_branch()
-    api_url = "{0}/project/{1}/{2}/tree/{3}?circle-token={4}".format(
-            BASE_API_URL, CIRCLE_USER, CIRCLE_PROJ, current_branch, PASSTOKEN)
+    api_url = "{0}/project/{1}/{2}/tree/{3}?circle-token={4}&limit={5}".format(
+            BASE_API_URL, CIRCLE_USER, CIRCLE_PROJ, current_branch, PASSTOKEN,
+            args.limit)
     r = requests.get(api_url, headers=HEADERS)
     return r.json()
 
