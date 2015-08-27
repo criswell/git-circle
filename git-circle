@@ -240,6 +240,12 @@ def artifact_handler():
     r = requests.get(api_url, headers=HEADERS)
     artifacts = r.json()
 
+    if isinstance(artifacts, dict):
+        print("Error obtaining artifacts!")
+        if 'message' in artifacts:
+            print(artifacts['message'])
+        sys.exit(1)
+
     for a in artifacts:
         node = a['node_index']
         url = a['url']
