@@ -217,14 +217,20 @@ def display_build(b):
         for l in pretty_message:
             pager(u' |      ' + l)
 
-def display_build_totals(build_outcomes):
-    if len(build_outcomes) > 0:
-        key_len = len(max(build_outcomes.keys(), key=len))
-        for outcome in sorted(build_outcomes.keys()):
-            message = u' ' + get_status_color(outcome) + \
-                outcome.rjust(key_len) + RESET_TEXT + u' : ' + \
-                str(build_outcomes[outcome])
-            pager(message)
+def display_build_totals(outcomes_by_branch):
+    for branch in sorted(outcomes_by_branch):
+        pager(Fore.YELLOW + Style.BRIGHT + branch + RESET_TEXT)
+        build_outcomes = outcomes_by_branch[branch]
+        if len(build_outcomes) > 0:
+            key_len = len(max(build_outcomes.keys(), key=len))
+            for outcome in sorted(build_outcomes.keys()):
+                message = u' ' + get_status_color(outcome) + \
+                    outcome.rjust(key_len) + RESET_TEXT + u' : ' + \
+                    str(build_outcomes[outcome])
+                pager(message)
+        else:
+            pager(u' No builds')
+        pager()
 
 def get_build_data(build_num):
     api_url = \
@@ -315,16 +321,21 @@ def artifact_handler():
 
     artifacts_per_branch = {}
     for branch in branches:
-        pager(Fore.YELLOW + Style.BRIGHT + branch + RESET_TEXT)
+        if branch not in artifacts_per_branch:
+            artifacts_per_branch[branch] = {}
+
         if args.param:
             build = args.param
         else:
             builds = get_latest_builds(branch)
+            pager(Fore.YELLOW + Style.BRIGHT + branch + RESET_TEXT)
             if len(builds) >= 1:
                 build = builds[0]['build_num']
             else:
-                print("Error! No builds for for branch {0}".format(
+                pager("Error! No builds for for branch {0}".format(
                     branch))
+                pager()
+                continue
 
         api_url = '{0}/project/{1}/{2}/{3}/artifacts?circle-token={4}'.format(
             BASE_API_URL, CIRCLE_USER, CIRCLE_PROJ, build, PASSTOKEN)
@@ -366,8 +377,11 @@ def artifact_handler():
         pager(spacer)
         for b in sorted(artifacts_per_branch.keys()):
             pager(Fore.YELLOW + Style.BRIGHT + b + RESET_TEXT)
-            for k in sorted(artifacts_per_branch[b].keys()):
-                pager(u' #{0} : {1}'.format(k, artifacts_per_branch[b][k]))
+            if len(artifacts_per_branch[b]) >= 1:
+                for k in sorted(artifacts_per_branch[b].keys()):
+                    pager(u' #{0} : {1}'.format(k, artifacts_per_branch[b][k]))
+            else:
+                pager(u' No artifacts')
 
 def build_handler():
     if args.param:
@@ -392,22 +406,32 @@ def last_build_handler():
             get_current_branch()))
 
 def list_builds_handler():
+    branches = []
     if args.param:
-        branch = args.param
+        branches = [ args.param ]
+    elif args.all_local:
+        branches = get_local_branches()
     else:
-        branch = get_current_branch()
-    builds = get_latest_builds()
-    pager(u'' + Fore.YELLOW + Style.BRIGHT + branch + RESET_TEXT)
-    total_builds = len(builds)
-    build_outcomes = {}
-    for b in builds:
-        if can_display_build(b):
-            display_build(b)
-            pager(u' |')
-            if b['outcome'] in build_outcomes:
-                build_outcomes[b['outcome']] = build_outcomes[b['outcome']] + 1
-            else:
-                build_outcomes[b['outcome']] = 1
+        branches = [ get_current_branch() ]
+
+    outcomes_by_branch = {}
+    total_builds = 0
+    for branch in branches:
+        builds = get_latest_builds(branch)
+        pager(u'' + Fore.YELLOW + Style.BRIGHT + branch + RESET_TEXT)
+        total_builds = total_builds + len(builds)
+        build_outcomes = {}
+        for b in builds:
+            if can_display_build(b):
+                display_build(b)
+                pager(u' |')
+                if b['outcome'] in build_outcomes:
+                    build_outcomes[b['outcome']] = \
+                            build_outcomes[b['outcome']] + 1
+                else:
+                    build_outcomes[b['outcome']] = 1
+
+        outcomes_by_branch[branch] = build_outcomes
 
     if args.stats:
         pager()
@@ -415,7 +439,9 @@ def list_builds_handler():
         spacer = u'-' * len(header)
         pager(header)
         pager(spacer)
-        display_build_totals(build_outcomes)
+        display_build_totals(outcomes_by_branch)
+        pager()
+        pager(u" TOTAL BUILDS: {0}".format(total_builds))
 
 def list_projects_handler():
     api_url = "{0}/projects?circle-token={1}".format(BASE_API_URL, PASSTOKEN)
