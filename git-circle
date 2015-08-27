@@ -298,9 +298,13 @@ def get_remote_branches():
     try:
         bout = subprocess.Popen(['git', 'ls-remote', '--heads'],
                 stdout=subprocess.PIPE)
-        blines = bout.stdout.readlines()
+        lines = bout.stdout.readlines()
         # HHRNG!
-        blines[:] = [b.strip().split('\t')[1].split('/')[-1] for b in blines]
+        blines = []
+        for l in lines:
+            if isinstance(l, bytes):
+                l = l.decode('utf-8')
+            blines.append(l.strip().split('\t')[1].split('/')[-1])
     except subprocess.CalledProcessError:
         blines = []
     return blines
