@@ -16,7 +16,7 @@ This command will list the projects you are following, along with their
 branches which have run on CircleCI and the statuses of the most recent
 builds.
 
-Usage:
+#### Usage:
 
 ```
 git circle list-projects [-v] [-np]
@@ -27,7 +27,7 @@ git circle list-projects [-v] [-np]
 This command will display the results of the last build for your current
 branch.
 
-Usage:
+#### Usage:
 
 ```
 git circle last [-v] [-np]
@@ -51,7 +51,7 @@ This command will list the recent builds for a given branch. If called with a
 branch name, will find the recent builds for that branch. If called without a
 branch name, will use the current branch.
 
-Usage:
+#### Usage:
 
 ```
 git list-builds [branch_name] [-v] [-np] [-s] [-ar] [-al] [--limit] \
@@ -73,4 +73,34 @@ obtain from CircleCI. The default is 30, and the maximum is 100.
 * `--yesterday` : Limit the recent builds to only those with yesterday's date.
 * `--date` : Limit the recent builds to only those found on a given date. The
 date format is YYYY-MM-DD.
+
+### `artifacts`
+
+This command will display the build artifacts for a given build. If called with
+a build number, it will display the artifacts for that build. If called without
+a build number, it will display the artifacts for the last build of the current
+branch.
+
+The artifacts will be grouped by CircleCI nodes (see
+[here](https://circleci.com/docs/setting-up-parallelism)) and will, by default,
+display the artifacts as they would be found on the nodes. If called with the
+`-v`/`--verbose` option then the full artifact path as well as the artifact
+URL will also be displayed.
+
+#### Usage:
+
+```
+git artifacts [build_num] [-v] [-np] [-s] [-ar] [-al]
+```
+
+The following options have special meanings for `artifacts`:
+
+* `-s` | `--stats` : Will display useful statistics at the end, grouped by
+branches.
+* `-ar` | `--all-remote` : Will cycle through all of the branches in the remote
+git repo and display the artifacts for each. **WARNING: This could,
+potentially, be a lot of branches. Use with caution.**
+* `-al` | `--all-local` : Will cycle through all of the branches in the local
+git repo and display the artifacts for each. **WARNING: This could,
+potentially, be a lot of branches. Use with caution.**
 
