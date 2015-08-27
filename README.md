@@ -62,11 +62,11 @@ The following options have special meanings for `list-builds`:
 
 * `-s` | `--stats` : Will display useful statistics at the end.
 * `-ar` | `--all-remote` : Will cycle through all of the branches in the
-remote git repo and list the recent builds for each. *WARNING: This could,
-potentially, be a lot of branches. Use with caution.*
+remote git repo and list the recent builds for each. **WARNING: This could,
+potentially, be a lot of branches. Use with caution.**
 * `-al` | `--all-local` : Will cycle through all of the branches in the local
-git repo and list the recent builds for each. *WARNING: This could,
-potentially, be a lot of branches. Use with caution.*
+git repo and list the recent builds for each. **WARNING: This could,
+potentially, be a lot of branches. Use with caution.**
 * `--limit` : Change the default limit for the number of recent builds to
 obtain from CircleCI. The default is 30, and the maximum is 100.
 * `--today` : Limit the recent builds to only those with today's date.
