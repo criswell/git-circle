@@ -53,7 +53,7 @@ Usage:
 git circle list-projects [-v] [-np]
 ```
 
-### `last`
+### `latest`
 
 This command will display the results of the last build for your current
 branch.
@@ -61,7 +61,7 @@ branch.
 Usage:
 
 ```
-git circle last [-v] [-np]
+git circle latest [-v] [-np]
 ```
 
 ### `build`

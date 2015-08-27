@@ -170,7 +170,7 @@ def can_display_build(b):
         build_time = b['stop_time']
         if build_time is None:
             pager(Style.BRIGHT + u"ERROR! Cannot decode time for build!")
-            pgaer(u"Display build anyway..." + RESET_TEXT)
+            pager(u"Display build anyway..." + RESET_TEXT)
             return True
 
     date_str = build_time.split('T')[0]
@@ -223,10 +223,10 @@ def display_build_totals(outcomes_by_branch):
         pager(Fore.YELLOW + Style.BRIGHT + branch + RESET_TEXT)
         build_outcomes = outcomes_by_branch[branch]
         if len(build_outcomes) > 0:
-            key_len = len(max(build_outcomes.keys(), key=len))
+            bkey_len = len(max(build_outcomes.keys(), key=len))
             for outcome in sorted(build_outcomes.keys()):
                 message = u' ' + get_status_color(outcome) + \
-                    outcome.rjust(key_len) + RESET_TEXT + u' : ' + \
+                    outcome.rjust(bkey_len) + RESET_TEXT + u' : ' + \
                     str(build_outcomes[outcome])
                 pager(message)
         else:
@@ -327,13 +327,13 @@ def get_status_color(outcome):
 def artifact_handler():
     branches = []
     if args.param:
-        branches = [ get_current_branch() ]
+        branches = [get_current_branch()]
     elif args.all_local:
         branches = get_local_branches()
     elif args.all_remote:
         branches = get_remote_branches()
     else:
-        branches = [ get_current_branch() ]
+        branches = [get_current_branch()]
 
     artifacts_per_branch = {}
     for branch in branches:
@@ -428,13 +428,13 @@ def last_build_handler():
 def list_builds_handler():
     branches = []
     if args.param:
-        branches = [ args.param ]
+        branches = [args.param]
     elif args.all_local:
         branches = get_local_branches()
     elif args.all_remote:
         branches = get_remote_branches()
     else:
-        branches = [ get_current_branch() ]
+        branches = [get_current_branch()]
 
     outcomes_by_branch = {}
     total_builds = 0
@@ -528,7 +528,7 @@ commands = {
                     'build. If no param, will display last build for ' + \
                     'current branch'
             },
-        'last' : {
+        'latest' : {
             'method' : last_build_handler,
             'desc' : 'Display the results of the last build for ' + \
                     'current branch'
