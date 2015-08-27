@@ -447,10 +447,10 @@ def list_builds_handler():
     for branch in branches:
         builds = get_latest_builds(branch)
         pager(u'' + Fore.YELLOW + Style.BRIGHT + branch + RESET_TEXT)
-        total_builds = total_builds + len(builds)
         build_outcomes = {}
         for b in builds:
             if can_display_build(b):
+                total_builds = total_builds + 1
                 display_build(b)
                 pager(u' |')
                 outcome = str(b['outcome'])
