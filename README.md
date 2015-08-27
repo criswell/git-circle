@@ -16,7 +16,7 @@ This command will list the projects you are following, along with their
 branches which have run on CircleCI and the statuses of the most recent
 builds.
 
-#### Usage:
+Usage:
 
 ```
 git circle list-projects [-v] [-np]
@@ -27,7 +27,7 @@ git circle list-projects [-v] [-np]
 This command will display the results of the last build for your current
 branch.
 
-#### Usage:
+Usage:
 
 ```
 git circle last [-v] [-np]
@@ -39,7 +39,7 @@ This command will display the results of a given build. If called with a build
 number, will use that build. If called without a build number, will use the
 last build for your current branch.
 
-#### Usage:
+Usage:
 
 ```
 git circle build [build_number] [-v] [-np]
@@ -51,7 +51,7 @@ This command will list the recent builds for a given branch. If called with a
 branch name, will find the recent builds for that branch. If called without a
 branch name, will use the current branch.
 
-#### Usage:
+Usage:
 
 ```
 git list-builds [branch_name] [-v] [-np] [-s] [-ar] [-al] [--limit] \
@@ -87,7 +87,7 @@ display the artifacts as they would be found on the nodes. If called with the
 `-v`/`--verbose` option then the full artifact path as well as the artifact
 URL will also be displayed.
 
-#### Usage:
+Usage:
 
 ```
 git artifacts [build_num] [-v] [-np] [-s] [-ar] [-al]
