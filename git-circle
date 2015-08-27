@@ -329,6 +329,8 @@ def artifact_handler():
         branches = [ get_current_branch() ]
     elif args.all_local:
         branches = get_local_branches()
+    elif args.all_remote:
+        branches = get_remote_branches()
     else:
         branches = [ get_current_branch() ]
 
@@ -424,6 +426,8 @@ def list_builds_handler():
         branches = [ args.param ]
     elif args.all_local:
         branches = get_local_branches()
+    elif args.all_remote:
+        branches = get_remote_branches()
     else:
         branches = [ get_current_branch() ]
 
