@@ -92,11 +92,11 @@ git circle list-builds [branch_name] [-v] [-np] [-s] [-ar] [-al] [--limit] \
 
 The following options have special meanings for `list-builds`:
 
-* `-s` | `--stats` : Will display useful statistics at the end.
-* `-ar` | `--all-remote` : Will cycle through all of the branches in the
+* `-s`/`--stats` : Will display useful statistics at the end.
+* `-ar`/`--all-remote` : Will cycle through all of the branches in the
 remote git repo and list the recent builds for each. **WARNING: This could,
 potentially, be a lot of branches. Use with caution.**
-* `-al` | `--all-local` : Will cycle through all of the branches in the local
+* `-al`/`--all-local` : Will cycle through all of the branches in the local
 git repo and list the recent builds for each. **WARNING: This could,
 potentially, be a lot of branches. Use with caution.**
 * `--limit` : Change the default limit for the number of recent builds to
@@ -127,12 +127,12 @@ git circle artifacts [build_num] [-v] [-np] [-s] [-ar] [-al]
 
 The following options have special meanings for `artifacts`:
 
-* `-s` | `--stats` : Will display useful statistics at the end, grouped by
+* `-s`/`--stats` : Will display useful statistics at the end, grouped by
 branches.
-* `-ar` | `--all-remote` : Will cycle through all of the branches in the remote
+* `-ar`/`--all-remote` : Will cycle through all of the branches in the remote
 git repo and display the artifacts for each. **WARNING: This could,
 potentially, be a lot of branches. Use with caution.**
-* `-al` | `--all-local` : Will cycle through all of the branches in the local
+* `-al`/`--all-local` : Will cycle through all of the branches in the local
 git repo and display the artifacts for each. **WARNING: This could,
 potentially, be a lot of branches. Use with caution.**
 
