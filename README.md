@@ -22,4 +22,14 @@ Usage:
 git circle list-projects [-v] [-np]
 ```
 
-## `
+## `last`
+
+This command will display the results of the last build for your current
+branch.
+
+Usage:
+
+```
+git circle last [-v] [-np]
+```
+
