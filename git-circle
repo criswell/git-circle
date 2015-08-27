@@ -205,11 +205,13 @@ def display_build(b):
             pager(u' |      ' + l)
 
 def display_build_totals(build_outcomes):
-    key_len = len(max(build_outcomes.keys(), key=len))
-    for outcome in sorted(build_outcomes.keys()):
-        message = u' ' + get_status_color(outcome) + outcome.rjust(key_len) + \
-                RESET_TEXT + u' : ' + str(build_outcomes[outcome])
-        pager(message)
+    if len(build_outcomes) > 0:
+        key_len = len(max(build_outcomes.keys(), key=len))
+        for outcome in sorted(build_outcomes.keys()):
+            message = u' ' + get_status_color(outcome) + \
+                outcome.rjust(key_len) + RESET_TEXT + u' : ' + \
+                str(build_outcomes[outcome])
+            pager(message)
 
 def get_build_data(build_num):
     api_url = \
