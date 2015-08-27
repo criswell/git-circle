@@ -279,7 +279,8 @@ def list_projects_handler():
                     message = message + outcome + RESET_TEXT + \
                         u' {0} {1} {2}'.format(build_num, pushed_at, build_url)
                     pager(message)
-                    pager(u' |\t {0}'.format(get_commit_(url, vcs_revision)))
+                    pager(u' |\t {0}'.format(get_commit_url(
+                        url, vcs_revision)))
                 else:
                     message = message + outcome + RESET_TEXT + \
                         u' {0} {1} {2}'.format(build_num, pushed_at,
