@@ -81,7 +81,7 @@ def get_max_columns():
     try:
         max_columns = subprocess.check_output(['tput', 'cols'])
     except (subprocess.CalledProcessError, FileNotFoundError):
-        max_columns = os.environ.get('COLUMNS', 30)
+        max_columns = os.environ.get('COLUMNS', 70)
     return int(max_columns)
 
 MAX_PAGE_LINES = get_max_lines()
