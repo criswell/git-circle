@@ -214,7 +214,7 @@ def display_build(b):
                     'Status: ' + get_status_color(previous_status) + \
                     previous_status + RESET_TEXT)
         pager(u' |   Subject:    ' + Style.BRIGHT + subject + RESET_TEXT)
-        pretty_message = textwrap.wrap(body)
+        pretty_message = textwrap.wrap(body, MAX_PAGE_WIDTH - 8)
         for l in pretty_message:
             pager(u' |      ' + l)
 
