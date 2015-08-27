@@ -8,7 +8,7 @@ it, but it's in flux and will change quite a bit in the coming days or weeks.
 
 Stay tuned.
 
-## `git-circle` Commands
+## git-circle Commands
 
 ### `list-projects`
 
