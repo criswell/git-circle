@@ -440,8 +440,7 @@ def list_builds_handler():
         pager(header)
         pager(spacer)
         display_build_totals(outcomes_by_branch)
-        pager()
-        pager(u" TOTAL BUILDS: {0}".format(total_builds))
+        pager(u"        TOTAL BUILDS : {0}".format(total_builds))
 
 def list_projects_handler():
     api_url = "{0}/projects?circle-token={1}".format(BASE_API_URL, PASSTOKEN)
