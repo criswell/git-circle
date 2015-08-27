@@ -8,3 +8,18 @@ it, but it's in flux and will change quite a bit in the coming days or weeks.
 
 Stay tuned.
 
+# `git-circle` Commands
+
+## `list-projects`
+
+This command will list the projects you are following, along with their
+branches which have run on CircleCI and the statuses of the most recent
+builds.
+
+Usage:
+
+```
+git circle list-projects [-v] [-np]
+```
+
+## `
