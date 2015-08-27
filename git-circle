@@ -76,7 +76,16 @@ def get_max_lines():
         max_lines = os.environ.get('LINES', 30)
     return int(max_lines)
 
+def get_max_columns():
+    max_columns = None
+    try:
+        max_columns = subprocess.check_output(['tput', 'cols'])
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        max_columns = os.environ.get('COLUMNS', 30)
+    return int(max_columns)
+
 MAX_PAGE_LINES = get_max_lines()
+MAX_PAGE_WIDTH = get_max_columns()
 CURRENT_LINE = 0
 PAGE_TEXT = Style.BRIGHT + \
     "Press any key to continue, Q to quit...\r" + Style.NORMAL
@@ -462,8 +471,12 @@ commands = {
 # Main entry point
 if args.list:
     key_len = len(max(commands.keys(), key=len))
+    desc_len = MAX_PAGE_WIDTH - 5 - key_len
     for cmd in sorted(commands.keys()):
-        pager('  {0} : {1}'.format(cmd.rjust(key_len), commands[cmd]['desc']))
+        desc = textwrap.wrap(commands[cmd]['desc'], desc_len)
+        pager('  {0} : {1}'.format(cmd.rjust(key_len), desc[0]))
+        for i in range(1, len(desc)):
+            pager(' ' * (5 + key_len) + '{0}'.format(desc[i]))
     sys.exit(0)
 
 if args.command in commands:
