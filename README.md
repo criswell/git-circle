@@ -39,7 +39,7 @@ This command will display the results of a given build. If called with a build
 number, will use that build. If called without a build number, will use the
 last build for your current branch.
 
-Usage:
+#### Usage:
 
 ```
 git circle build [build_number] [-v] [-np]
