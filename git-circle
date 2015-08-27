@@ -289,6 +289,19 @@ def get_local_branches():
         branches = []
     return branches
 
+def get_remote_branches():
+    # Okay, this is a bit uglier than I'd like. The problem is, there's
+    # nothing like what we use in get_local_branches() for remote branches.
+    try:
+        bout = subprocess.Popen(['git', 'ls-remote', '--heads'],
+                stdout=subprocess.PIPE)
+        blines = bout.stdout.readlines()
+        # HHRNG!
+        blines[:] = [b.strip().split('\t')[1].split('/')[-1] for b in blines]
+    except subprocess.CalledProcessError:
+        blines = []
+    return blines
+
 def get_status_color(outcome):
     if outcome == 'success' or outcome == 'fixed':
         return Fore.GREEN + Style.BRIGHT
