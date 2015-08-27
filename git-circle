@@ -286,8 +286,12 @@ def get_local_branches():
         bout = subprocess.Popen(["git", "for-each-ref",
             "--format=%(refname:short)", "refs/heads/"],
             stdout=subprocess.PIPE)
-        branches = bout.stdout.readlines()
-        branches[:] = [b.strip() for b in branches]
+        lines = bout.stdout.readlines()
+        branches = []
+        for l in lines:
+            if isinstance(l, bytes):
+                l = l.decode('utf-8')
+            branches.append(l.strip())
     except subprocess.CalledProcessError:
         branches = []
     return branches
@@ -300,14 +304,14 @@ def get_remote_branches():
                 stdout=subprocess.PIPE)
         lines = bout.stdout.readlines()
         # HHRNG!
-        blines = []
+        branches = []
         for l in lines:
             if isinstance(l, bytes):
                 l = l.decode('utf-8')
-            blines.append(l.strip().split('\t')[1].split('/')[-1])
+            branches.append(l.strip().split('\t')[1].split('/')[-1])
     except subprocess.CalledProcessError:
-        blines = []
-    return blines
+        branches = []
+    return branches
 
 def get_status_color(outcome):
     if outcome == 'success' or outcome == 'fixed':
