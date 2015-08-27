@@ -86,7 +86,7 @@ branch name, will use the current branch.
 Usage:
 
 ```
-git list-builds [branch_name] [-v] [-np] [-s] [-ar] [-al] [--limit] \
+git circle list-builds [branch_name] [-v] [-np] [-s] [-ar] [-al] [--limit] \
                               [--today] [--yesterday] [--date DATE]
 ```
 
@@ -122,7 +122,7 @@ URL will also be displayed.
 Usage:
 
 ```
-git artifacts [build_num] [-v] [-np] [-s] [-ar] [-al]
+git circle artifacts [build_num] [-v] [-np] [-s] [-ar] [-al]
 ```
 
 The following options have special meanings for `artifacts`:
