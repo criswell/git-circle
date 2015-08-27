@@ -20,7 +20,11 @@ parser.add_argument("param", help="Optional param for commands, see " + \
         "commands list for more information", nargs='?')
 parser.add_argument("-v", "--verbose", help="Run verbosely",
         action="store_true")
+parser.add_argument("-np", "--no-page", help="Disable paging",
+        action="store_true")
 parser.add_argument("-l", "--list", help="List the commands available",
+        action="store_true")
+parser.add_argument("-s", "--stats", help="Display useful stats at the end",
         action="store_true")
 args = parser.parse_args()
 
@@ -104,7 +108,7 @@ def pager(line=""):
     global MAX_PAGE_LINES
     global PAGE_TEXT
     global CLEAR_TEXT
-    if CURRENT_LINE > MAX_PAGE_LINES - 3:
+    if CURRENT_LINE > MAX_PAGE_LINES - 3 and not args.no_page:
         print(PAGE_TEXT, end="")
         c = getch()
         print(CLEAR_TEXT, end="")
@@ -113,7 +117,8 @@ def pager(line=""):
         if c == 'q' or c == 'Q' or ord(c) == 3:
             sys.exit(0)
     print(line)
-    CURRENT_LINE = CURRENT_LINE + 1
+    if not args.no_page:
+        CURRENT_LINE = CURRENT_LINE + 1
 
 # Define the headers and base CircleCI URLs
 HEADERS = {'Accept' : 'application/json'}
@@ -246,18 +251,33 @@ def artifact_handler():
             print(artifacts['message'])
         sys.exit(1)
 
+    artifacts_per_node = {}
+
     for a in artifacts:
         node = a['node_index']
         url = a['url']
         cpath = a['path']
         pretty_path = a['pretty_path']
         pager(u'{0} : {1}'.format(node, pretty_path))
+        if node in artifacts_per_node:
+            artifacts_per_node[node] = artifacts_per_node[node] + 1
+        else:
+            artifacts_per_node[node] = 1
         if args.verbose:
             cpath = a['path']
             pretty_path = a['pretty_path']
             pager(u'  Path: {0}'.format(cpath))
             pager(u'  URL:  {0}'.format(url))
             pager()
+
+    if args.stats:
+        pager()
+        header = u'TOTAL ARTIFACTS PER NODE'
+        spacer = u'-' * len(header)
+        pager(header)
+        pager(spacer)
+        for k in sorted(artifacts_per_node.keys()):
+            pager(u' #{0} : {1}'.format(k, artifacts_per_node[k]))
 
 def build_handler():
     if args.param:
