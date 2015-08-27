@@ -530,8 +530,8 @@ commands = {
             },
         'list-projects' : {
             'method' : list_projects_handler,
-            'desc' : 'List the projects your following, along with their ' + \
-                    'branches and build statuses'
+            'desc' : "List the projects you're following, along with their " + \
+                    "branches and build statuses"
             },
         'list-builds' : {
             'method' : list_builds_handler,
