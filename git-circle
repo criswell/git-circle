@@ -476,14 +476,16 @@ def list_builds_handler():
         display_build_totals(outcomes_by_branch)
         pager(u" TOTAL BUILDS : {0}".format(total_builds))
         pager()
-        avg_time_successful = datetime.timedelta(milliseconds=
+        if total_successful > 0:
+            avg_time_successful = datetime.timedelta(milliseconds=
                 sum_successful / total_successful)
-        avg_time_completed = datetime.timedelta(milliseconds=
+            pager(u" TOTAL SUCCESSFUL : {0}\tAVERAGE TIME SUCCESSFUL : {1}".\
+                    format(total_successful, avg_time_successful))
+        if total_completed > 0:
+            avg_time_completed = datetime.timedelta(milliseconds=
                 sum_completed / total_completed)
-        pager(u" TOTAL SUCCESSFUL : {0}\tAVERAGE TIME SUCCESSFUL : {1}".format(
-            total_successful, avg_time_successful))
-        pager(u" TOTAL COMPLETED  : {0}\tAVERAGE TIME COMPLETED  : {1}".format(
-            total_completed, avg_time_completed))
+            pager(u" TOTAL COMPLETED  : {0}\tAVERAGE TIME COMPLETED  : {1}".\
+                    format(total_completed, avg_time_completed))
 
 def list_projects_handler():
     api_url = "{0}/projects?circle-token={1}".format(BASE_API_URL, PASSTOKEN)
