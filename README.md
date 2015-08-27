@@ -8,6 +8,38 @@ it, but it's in flux and will change quite a bit in the coming days or weeks.
 
 Stay tuned.
 
+## git-circle General Usage
+
+```
+usage: git-circle [-h] [-v] [-np] [-l] [-s] [-ar] [-al] [--limit LIMIT]
+                  [--today] [--yesterday] [-d DATE]
+                  [command] [param]
+
+positional arguments:
+  command               The command to run
+  param                 Optional param for commands, see commands list for
+                        more information
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         Run verbosely
+  -np, --no-page        Disable paging
+  -l, --list            List the commands available
+  -s, --stats           Display useful stats at the end
+  -ar, --all-remote     Filter by all remote branches (not all commands
+                        support this)
+  -al, --all-local      Filter by all local branches (not all commands support
+                        this)
+  --limit LIMIT         Change the default limit for the underlying CircleCI
+                        API call (default 30, max 100)
+  --today               Limit responses to just those from today (not all
+                        commands support this)
+  --yesterday           Limit responses to just those from yesterday (not all
+                        commands support this)
+  -d DATE, --date DATE  Limit responses to just those from a certain date,
+                        format YYYY-MM-DD (not all commands support this)
+```
+
 ## git-circle Commands
 
 ### `list-projects`
