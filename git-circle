@@ -6,6 +6,7 @@ import os
 import requests
 import subprocess
 import textwrap
+import datetime
 from colorama import init, Fore, Style
 
 try:
@@ -29,6 +30,11 @@ parser.add_argument("-s", "--stats", help="Display useful stats at the end",
 parser.add_argument("--limit", help="Change the default limit for the " + \
         "underlying CircleCI API call (default 30, max 100)", type=int,
         default=30)
+parser.add_argument("--today", help="Limit responses to just those from " + \
+        "today (ignored where single build is asked for)", action="store_true")
+parser.add_argument("--yesterday", help="Limit responses to just those " + \
+        "from yesterday (ignored where single build is asked for)",
+        action="store_true")
 args = parser.parse_args()
 
 try:
@@ -47,6 +53,17 @@ except ImportError:
             termios.tcsetattr(fd, termios.TCSADRAIN, old)
 
 init()
+
+# Initialize time stuff
+if args.today and args.yesterday:
+    print("Error! Cannot mix --today with --yesterday!")
+    sys.exit(1)
+
+LIMIT_TIME = None
+if args.today:
+    LIMIT_TIME = datetime.date.today()
+elif args.yesterday:
+    LIMIT_TIME = datetime.date.today() - datetime.timedelta(days=1)
 
 # Initialize the pager stuff. Note, this will probably only work on *nixes
 def get_max_lines():
@@ -129,6 +146,24 @@ BASE_CIRCLE_BUILD_URL = 'https://circleci.com/gh'
 BASE_API_URL = 'https://circleci.com/api/v1'
 
 # Utility methods
+def can_display_build(b):
+    if LIMIT_TIME is None:
+        return True
+
+    build_time = b['start_time']
+    if build_time is None:
+        build_time = b['stop_time']
+        if build_time is None:
+            pager(Style.BRIGHT + u"ERROR! Cannot decode time for build!")
+            pgaer(u"Display build anyway..." + RESET_TEXT)
+            return True
+
+    date_str = build_time.split('T')[0]
+    date_tuple = date_str.split('-')
+    build_date = datetime.date(int(date_tuple[0]), int(date_tuple[1]),
+            int(date_tuple[2]))
+    return build_date == LIMIT_TIME
+
 def display_build(b):
     build_num = str(b['build_num'])
     build_url = b['build_url']
@@ -318,12 +353,13 @@ def list_builds_handler():
     total_builds = len(builds)
     build_outcomes = {}
     for b in builds:
-        display_build(b)
-        pager(u' |')
-        if b['outcome'] in build_outcomes:
-            build_outcomes[b['outcome']] = build_outcomes[b['outcome']] + 1
-        else:
-            build_outcomes[b['outcome']] = 1
+        if can_display_build(b):
+            display_build(b)
+            pager(u' |')
+            if b['outcome'] in build_outcomes:
+                build_outcomes[b['outcome']] = build_outcomes[b['outcome']] + 1
+            else:
+                build_outcomes[b['outcome']] = 1
 
     if args.stats:
         pager()
