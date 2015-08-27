@@ -201,15 +201,16 @@ def display_build(b):
     pager(u' |   Committer:  {0} <{1}>'.format(committer_name,
             committer_email))
     if args.verbose:
-        previous_build_num = str(b['previous']['build_num'])
-        previous_status = b['previous']['status']
         subject = b['subject']
         body = b['body']
         start_time = b['start_time']
         stop_time = b['stop_time']
         pager(u' |   Start Time: ' + str(start_time))
         pager(u' |   Stop Time:  ' + str(stop_time))
-        pager(u' |   Previous:   #' + previous_build_num.ljust(19) + \
+        if 'previous' in b and b['previous'] is not None:
+            previous_build_num = str(b['previous']['build_num'])
+            previous_status = str(b['previous']['status'])
+            pager(u' |   Previous:   #' + previous_build_num.ljust(19) + \
                     'Status: ' + get_status_color(previous_status) + \
                     previous_status + RESET_TEXT)
         pager(u' |   Subject:    ' + Style.BRIGHT + subject + RESET_TEXT)
