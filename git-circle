@@ -166,6 +166,13 @@ def get_build_data(build_num):
     r = requests.get(api_url, headers=HEADERS)
     return r.json()
 
+def get_latest_builds():
+    current_branch = get_current_branch()
+    api_url = "{0}/project/{1}/{2}/tree/{3}?circle-token={4}".format(
+            BASE_API_URL, CIRCLE_USER, CIRCLE_PROJ, current_branch, PASSTOKEN)
+    r = requests.get(api_url, headers=HEADERS)
+    return r.json()
+
 def get_commit_url(vcs_url, vcs_revision):
     purl = urlparse(vcs_url)
     commit_url = None
@@ -217,6 +224,35 @@ def get_status_color(outcome):
     return Style.BRIGHT
 
 # Command handlers
+def artifact_handler():
+    if args.param:
+        build = args.param
+    else:
+        builds = get_latest_builds()
+        if len(builds) >= 1:
+            build = builds[0]['build_num']
+        else:
+            print("Error! No builds for for branch {0}".format(
+                get_current_branch()))
+
+    api_url = '{0}/project/{1}/{2}/{3}/artifacts?circle-token={4}'.format(
+            BASE_API_URL, CIRCLE_USER, CIRCLE_PROJ, build, PASSTOKEN)
+    r = requests.get(api_url, headers=HEADERS)
+    artifacts = r.json()
+
+    for a in artifacts:
+        node = a['node_index']
+        url = a['url']
+        cpath = a['path']
+        pretty_path = a['pretty_path']
+        pager(u'{0} : {1}'.format(node, pretty_path))
+        if args.verbose:
+            cpath = a['path']
+            pretty_path = a['pretty_path']
+            pager(u'  Path: {0}'.format(cpath))
+            pager(u'  URL:  {0}'.format(url))
+            pager()
+
 def build_handler():
     if args.param:
         b = get_build_data(args.param)
@@ -232,24 +268,16 @@ def build_handler():
         last_build_handler()
 
 def last_build_handler():
-    current_branch = get_current_branch()
-    api_url = "{0}/project/{1}/{2}/tree/{3}?circle-token={4}".format(
-            BASE_API_URL, CIRCLE_USER, CIRCLE_PROJ, current_branch, PASSTOKEN)
-    r = requests.get(api_url, headers=HEADERS)
-    builds = r.json()
+    builds = get_latest_builds()
     if len(builds) >= 1:
         display_build(builds[0])
     else:
-        print('Error! No builds found for branch {0}'.format(current_branch))
+        print('Error! No builds found for branch {0}'.format(
+            get_current_branch()))
 
 def list_builds_handler():
-    current_branch = get_current_branch()
-
-    api_url = "{0}/project/{1}/{2}/tree/{3}?circle-token={4}".format(
-            BASE_API_URL, CIRCLE_USER, CIRCLE_PROJ, current_branch, PASSTOKEN)
-    r = requests.get(api_url, headers=HEADERS)
-    builds = r.json()
-    pager(u'' + Fore.YELLOW + Style.BRIGHT + current_branch + RESET_TEXT)
+    builds = get_latest_builds()
+    pager(u'' + Fore.YELLOW + Style.BRIGHT + get_current_branch() + RESET_TEXT)
     for b in builds:
         display_build(b)
         pager(u' |')
@@ -290,6 +318,13 @@ def list_projects_handler():
         pager()
 
 commands = {
+        'artifacts' : {
+            'method' : artifact_handler,
+            'desc' : "Display a build's artifact. If called with param " + \
+                    "set to a build number, will display that build's " + \
+                    "artifacts. If no param, will use the last build for " + \
+                    "current branch"
+            },
         'build' : {
             'method' : build_handler,
             'desc' : 'Display information of a build. If called with ' + \
