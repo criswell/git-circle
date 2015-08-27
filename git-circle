@@ -415,6 +415,10 @@ def build_handler():
 
 def last_build_handler():
     builds = get_latest_builds()
+    if isinstance(builds, dict):
+        if 'message' in builds:
+            print(builds['message'])
+            sys.exit(1)
     if len(builds) >= 1:
         display_build(builds[0])
     else:
