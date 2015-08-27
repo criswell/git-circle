@@ -352,8 +352,12 @@ def last_build_handler():
             get_current_branch()))
 
 def list_builds_handler():
+    if args.param:
+        branch = args.param
+    else:
+        branch = get_current_branch()
     builds = get_latest_builds()
-    pager(u'' + Fore.YELLOW + Style.BRIGHT + get_current_branch() + RESET_TEXT)
+    pager(u'' + Fore.YELLOW + Style.BRIGHT + branch + RESET_TEXT)
     total_builds = len(builds)
     build_outcomes = {}
     for b in builds:
@@ -449,7 +453,9 @@ commands = {
             },
         'list-builds' : {
             'method' : list_builds_handler,
-            'desc' : 'List the recent builds for your current branch'
+            'desc' : 'List the recent builds for a given branch. If ' + \
+                    'called with param set, will use that branch. If ' + \
+                    'no param, will use the current branch'
             }
         }
 
