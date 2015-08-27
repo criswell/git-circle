@@ -184,9 +184,9 @@ def display_build(b):
     build_url = b['build_url']
     vcs_url = b['vcs_url']
     vcs_revision = b['vcs_revision']
-    status = b['status']
-    outcome = b['outcome']
-    lifecycle = b['lifecycle']
+    status = str(b['status'])
+    outcome = str(b['outcome'])
+    lifecycle = str(b['lifecycle'])
     why = b['why']
     committer_name = b['committer_name']
     committer_email = b['committer_email']
