@@ -27,6 +27,10 @@ parser.add_argument("-l", "--list", help="List the commands available",
         action="store_true")
 parser.add_argument("-s", "--stats", help="Display useful stats at the end",
         action="store_true")
+parser.add_argument("-ar", "--all-remote", help="Filter by all remote " +\
+        "branches (not all commands support this)", action="store_true")
+parser.add_argument("-al", "--all-local", help="Filter by all local " + \
+        "branches (not all commands support this)", action="store_true")
 parser.add_argument("--limit", help="Change the default limit for the " + \
         "underlying CircleCI API call (default 30, max 100)", type=int,
         default=30)
@@ -229,8 +233,9 @@ def get_build_data(build_num):
     r = requests.get(api_url, headers=HEADERS)
     return r.json()
 
-def get_latest_builds():
-    current_branch = get_current_branch()
+def get_latest_builds(current_branch=None):
+    if current_branch is None:
+        current_branch = get_current_branch()
     api_url = "{0}/project/{1}/{2}/tree/{3}?circle-token={4}&limit={5}".format(
             BASE_API_URL, CIRCLE_USER, CIRCLE_PROJ, current_branch, PASSTOKEN,
             args.limit)
@@ -267,6 +272,17 @@ def get_current_branch():
         current_branch = current_branch.decode('utf-8')
     return current_branch
 
+def get_local_branches():
+    try:
+        bout = subprocess.Popen(["git", "for-each-ref",
+            "--format=%(refname:short)", "refs/heads/"],
+            stdout=subprocess.PIPE)
+        branches = bout.stdout.readlines()
+        branches[:] = [b.strip() for b in branches]
+    except subprocess.CalledProcessError:
+        branches = []
+    return branches
+
 def get_status_color(outcome):
     if outcome == 'success' or outcome == 'fixed':
         return Fore.GREEN + Style.BRIGHT
@@ -289,54 +305,69 @@ def get_status_color(outcome):
 
 # Command handlers
 def artifact_handler():
+    branches = []
     if args.param:
-        build = args.param
+        branches = [ get_current_branch() ]
+    elif args.all_local:
+        branches = get_local_branches()
     else:
-        builds = get_latest_builds()
-        if len(builds) >= 1:
-            build = builds[0]['build_num']
-        else:
-            print("Error! No builds for for branch {0}".format(
-                get_current_branch()))
+        branches = [ get_current_branch() ]
 
-    api_url = '{0}/project/{1}/{2}/{3}/artifacts?circle-token={4}'.format(
+    artifacts_per_branch = {}
+    for branch in branches:
+        pager(Fore.YELLOW + Style.BRIGHT + branch + RESET_TEXT)
+        if args.param:
+            build = args.param
+        else:
+            builds = get_latest_builds(branch)
+            if len(builds) >= 1:
+                build = builds[0]['build_num']
+            else:
+                print("Error! No builds for for branch {0}".format(
+                    branch))
+
+        api_url = '{0}/project/{1}/{2}/{3}/artifacts?circle-token={4}'.format(
             BASE_API_URL, CIRCLE_USER, CIRCLE_PROJ, build, PASSTOKEN)
-    r = requests.get(api_url, headers=HEADERS)
-    artifacts = r.json()
+        r = requests.get(api_url, headers=HEADERS)
+        artifacts = r.json()
 
-    if isinstance(artifacts, dict):
-        print("Error obtaining artifacts!")
-        if 'message' in artifacts:
-            print(artifacts['message'])
-        sys.exit(1)
+        if isinstance(artifacts, dict):
+            print("Error obtaining artifacts!")
+            if 'message' in artifacts:
+                print(artifacts['message'])
+            sys.exit(1)
 
-    artifacts_per_node = {}
+        if branch not in artifacts_per_branch:
+            artifacts_per_branch[branch] = {}
 
-    for a in artifacts:
-        node = a['node_index']
-        url = a['url']
-        cpath = a['path']
-        pretty_path = a['pretty_path']
-        pager(u'{0} : {1}'.format(node, pretty_path))
-        if node in artifacts_per_node:
-            artifacts_per_node[node] = artifacts_per_node[node] + 1
-        else:
-            artifacts_per_node[node] = 1
-        if args.verbose:
+        for a in artifacts:
+            node = a['node_index']
+            url = a['url']
             cpath = a['path']
             pretty_path = a['pretty_path']
-            pager(u'  Path: {0}'.format(cpath))
-            pager(u'  URL:  {0}'.format(url))
-            pager()
+            pager(u'{0} : {1}'.format(node, pretty_path))
+            if node in artifacts_per_branch[branch]:
+                artifacts_per_branch[branch][node] = \
+                        artifacts_per_branch[branch][node] + 1
+            else:
+                artifacts_per_branch[branch][node] = 1
+            if args.verbose:
+                cpath = a['path']
+                pretty_path = a['pretty_path']
+                pager(u'  Path: {0}'.format(cpath))
+                pager(u'  URL:  {0}'.format(url))
+                pager()
+        pager()
 
     if args.stats:
-        pager()
         header = u'TOTAL ARTIFACTS PER NODE'
         spacer = u'-' * len(header)
         pager(header)
         pager(spacer)
-        for k in sorted(artifacts_per_node.keys()):
-            pager(u' #{0} : {1}'.format(k, artifacts_per_node[k]))
+        for b in sorted(artifacts_per_branch.keys()):
+            pager(Fore.YELLOW + Style.BRIGHT + b + RESET_TEXT)
+            for k in sorted(artifacts_per_branch[b].keys()):
+                pager(u' #{0} : {1}'.format(k, artifacts_per_branch[b][k]))
 
 def build_handler():
     if args.param:
