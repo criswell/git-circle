@@ -55,7 +55,7 @@ git circle list-projects [-v] [-np]
 
 ### `latest`
 
-This command will display the results of the last build for your current
+This command will display the results of the latest build for your current
 branch.
 
 Usage:
@@ -68,7 +68,7 @@ git circle latest [-v] [-np]
 
 This command will display the results of a given build. If called with a build
 number, will use that build. If called without a build number, will use the
-last build for your current branch.
+latest build for your current branch.
 
 Usage:
 
