@@ -9,6 +9,8 @@ import textwrap
 import datetime
 from colorama import init, Fore, Style
 
+__version__ = "0.0.1"
+
 try:
     from urllib.parse import urlparse
 except ImportError:
