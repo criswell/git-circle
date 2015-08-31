@@ -8,6 +8,21 @@ it, but it's in flux and will change quite a bit in the coming days or weeks.
 
 Stay tuned.
 
+## Installation
+
+`git-circle` requires Python (>=2.7) and
+[pip](https://pypi.python.org/pypi/pip).
+
+Install `git-circle` with:
+
+```
+pip install git-circle
+
+       # -or- to install for an individual user
+
+pip install --user git-circle
+```
+
 ## git-circle General Usage
 
 ```
