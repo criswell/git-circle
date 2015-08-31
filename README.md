@@ -10,10 +10,9 @@ Stay tuned.
 
 ## Installation
 
-`git-circle` requires Python (>=2.7) and
-[pip](https://pypi.python.org/pypi/pip).
+`git-circle` requires Python (>=2.7), with `requests` and `colorama`.
 
-Install `git-circle` with:
+Install `git-circle` with [pip](https://pypi.python.org/pypi/pip):
 
 ```
 pip install git-circle
