@@ -204,7 +204,7 @@ def display_build(b):
             committer_email))
     if args.verbose:
         subject = str(b['subject'])
-        body = str(b['body'])
+        body = b['body']
         start_time = b['start_time']
         stop_time = b['stop_time']
         build_time = b['build_time_millis']
@@ -218,7 +218,10 @@ def display_build(b):
                     'Status: ' + get_status_color(previous_status) + \
                     previous_status + RESET_TEXT)
         pager(u' |   Subject:    ' + Style.BRIGHT + subject + RESET_TEXT)
-        pretty_message = textwrap.wrap(body, MAX_PAGE_WIDTH - 8)
+        if body:
+            pretty_message = textwrap.wrap(body, MAX_PAGE_WIDTH - 8)
+        else:
+            pretty_message = []
         for l in pretty_message:
             pager(u' |      ' + l)
 
