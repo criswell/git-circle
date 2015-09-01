@@ -153,7 +153,10 @@ def pager(line=""):
         MAX_PAGE_LINES = get_max_lines()
         if c == 'q' or c == 'Q' or ord(c) == 3:
             sys.exit(0)
-    print(line)
+    try:
+        print(line)
+    except UnicodeEncodeError:
+        print(line.encode('ascii', 'replace'))
     if not args.no_page:
         CURRENT_LINE = CURRENT_LINE + 1
 
