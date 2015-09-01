@@ -26,7 +26,7 @@ pip install --user git-circle
 
 ```
 usage: git-circle [-h] [-v] [-np] [-l] [-s] [-ar] [-al] [--limit LIMIT]
-                  [--today] [--yesterday] [-d DATE] [-y]
+                  [--today] [--yesterday] [-d DATE] [-y] [-m]
                   [command] [param]
 
 positional arguments:
@@ -53,6 +53,7 @@ optional arguments:
   -d DATE, --date DATE  Limit responses to just those from a certain date,
                         format YYYY-MM-DD (not all commands support this)
   -y, --yes             Automatically answer all queries with a 'yes'
+  -m, --machine         Output the results in a machine readable way
 ```
 
 ## git-circle Commands
