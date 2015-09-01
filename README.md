@@ -196,6 +196,18 @@ potentially, be a lot of branches. Use with caution.**
 git repo and display the artifacts for each. **WARNING: This could,
 potentially, be a lot of branches. Use with caution.**
 
+## Using git-circle in scripts
+
+`git-circle`, by default, is a
+[porcelain](https://git-scm.com/book/en/v2/Git-Internals-Plumbing-and-Porcelain)
+utility, meaning it is intended to be consumed by a user.
+
+However, if you want to use `git-circle` as a source of data for processing
+elsewhere, we do provide the `-m`/`--machine` option for generating machine
+readable output.
+
+For more information, see [MACHINE_READABLE](MACHINE_READABLE.md)
+
 ## TODO
 
 * [TODO](TODO.md)
