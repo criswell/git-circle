@@ -22,7 +22,7 @@ ARTIFACTS,<node>,<pretty_path>,<path>,<url>
 TOTALS,<branch_name>,<node>,<total_artifacts>
 ```
 
-* **ARTIFACTS** is the unique indentifier saying that the following line
+* **ARTIFACTS** is the unique identifier saying that the following line
 contains an artifact.
   * **`<node>`** is the node the artifact can be found in.
   * **`<pretty_path>`** is the path of the artifact using the
@@ -33,5 +33,48 @@ contains an artifact.
 artifact totals.
   * **`<branch_name>`** is the name of the branch this artifact belongs to.
   * **`<node>`** is the node the artifacts can be found on.
-  * **`total_artifacts>`** is the total number of artifacts found on that node.
+  * **`<total_artifacts>`** is the total number of artifacts found on that
+  node.
+
+## `build`, `latest`, `list-builds`
+
+Each of the commands which display build information will display with the
+following format:
+
+```
+BUILD,<build_number>,<circle_url>,<status>,<outcome>,<lifecycle>,<vcs_url>,<vcs_revision>,<committer_name>,<committer_email>
+TOTALS,<branch_name>,<outcome>,<total>
+SUMMARY_SUCCESSFUL,<total_successful>,<average_duration>
+SUMMARY_COMPLETED,<total_completed>,<average_duration>
+```
+
+* **BUILD** is the unique identifier saying that the following line contains
+build information.
+  * **`<build_number>`** is the build number.
+  * **`<circle_url>`** is the URL for the build.
+  * **`<status>`** is the status of the build.
+  * **`<outcome>`** is the outcome of the build.
+  * **`<lifecycle>`** is the lifecycle of the build.
+  * **`<vcs_url>`** is the URL for the git repo.
+  * **`<vcs_revision>`** is the has of the latest commit this build includes.
+  * **`<committer_name>`** is the name of the person who made the commit.
+  * **`<committer_email>`** is the email of the person who made the commit.
+* **TOTALS** is the unique identifier saying that the following line contains
+build totals.
+  * **`<branch_name>`** is the name of the branch in question.
+  * **`<outcome>`** is the outcome this line pertains to.
+  * **`<total>`** is the total number of builds in this branch which have the
+  listed outcome.
+* **SUMMARY_SUCCESSFUL** is the unique identifier saying that the following
+line contains a summary of the successful builds.
+  * **`<total_successful>`** is the total number of successful builds for
+  this query.
+  * **`<average_duration>`** is the average duration, in milliseconds, of the
+  successful builds in this query.
+* **SUMMARY_COMPLETED** is the unique identifier saying that the following
+line contains a summary of the completed builds.
+  * **`<total_completed>`** is the total number of completed builds for this
+  query.
+  * **`<average_duration>`** is the average duration, in milliseconds, of the
+  completed builds in this query.
 
