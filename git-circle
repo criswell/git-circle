@@ -10,7 +10,7 @@ import datetime
 import csv
 from colorama import init, Fore, Style
 
-__version__ = "0.0.2"
+__version__ = "0.0.3"
 
 try:
     from urllib.parse import urlparse
