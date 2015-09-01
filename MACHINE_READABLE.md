@@ -18,11 +18,11 @@ is as follows:
 Each line containing an artifact will have the following format:
 
 ```
-ARTIFACTS,<node>,<pretty_path>,<path>,<url>
+ARTIFACT,<node>,<pretty_path>,<path>,<url>
 TOTALS,<branch_name>,<node>,<total_artifacts>
 ```
 
-* **ARTIFACTS** is the unique identifier saying that the following line
+* **ARTIFACT** is the unique identifier saying that the following line
 contains an artifact.
   * **`<node>`** is the node the artifact can be found in.
   * **`<pretty_path>`** is the path of the artifact using the

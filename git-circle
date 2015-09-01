@@ -419,7 +419,7 @@ def artifact_handler():
             pretty_path = a['pretty_path']
             cpath = a['path']
             if args.machine:
-                writer.writerow(['ARTIFACTS', node, pretty_path, cpath, url])
+                writer.writerow(['ARTIFACT', node, pretty_path, cpath, url])
             pager(u'{0} : {1}'.format(node, pretty_path))
             if node in artifacts_per_branch[branch]:
                 artifacts_per_branch[branch][node] = \
