@@ -7,6 +7,7 @@ import requests
 import subprocess
 import textwrap
 import datetime
+import csv
 from colorama import init, Fore, Style
 
 __version__ = "0.0.2"
@@ -50,6 +51,8 @@ parser.add_argument("-d", "--date", help="Limit responses to just those " + \
         "support this)", default=None)
 parser.add_argument("-y", "--yes", help="Automatically answer all queries " + \
         "with a 'yes'", action="store_true")
+parser.add_argument("-m", "--machine", help="Output the results in a " + \
+        "machine readable way", action="store_true")
 args = parser.parse_args()
 
 try:
@@ -79,6 +82,9 @@ elif args.date:
     _date_split = args.date.split('-')
     LIMIT_TIME = datetime.date(int(_date_split[0]), int(_date_split[1]),
             int(_date_split[2]))
+
+if args.machine:
+    writer = csv.writer(sys.stdout)
 
 # Initialize the pager stuff. Note, this will probably only work on *nixes
 def get_max_lines():
@@ -148,24 +154,23 @@ if isinstance(CIRCLE_PROJ, bytes):
 
 # The pagination method
 def pager(line=""):
-    global CURRENT_LINE
-    global MAX_PAGE_LINES
-    global PAGE_TEXT
-    global CLEAR_TEXT
-    if CURRENT_LINE > MAX_PAGE_LINES - 3 and not args.no_page:
-        print(PAGE_TEXT, end="")
-        c = getch()
-        print(CLEAR_TEXT, end="")
-        CURRENT_LINE = 0
-        MAX_PAGE_LINES = get_max_lines()
-        if c == 'q' or c == 'Q' or ord(c) == 3:
-            sys.exit(0)
-    try:
-        print(line)
-    except UnicodeEncodeError:
-        print(line.encode('ascii', 'replace'))
-    if not args.no_page:
-        CURRENT_LINE = CURRENT_LINE + 1
+    if not args.machine:
+        global CURRENT_LINE
+        global MAX_PAGE_LINES
+        if CURRENT_LINE > MAX_PAGE_LINES - 3 and not args.no_page:
+            print(PAGE_TEXT, end="")
+            c = getch()
+            print(CLEAR_TEXT, end="")
+            CURRENT_LINE = 0
+            MAX_PAGE_LINES = get_max_lines()
+            if c == 'q' or c == 'Q' or ord(c) == 3:
+                sys.exit(0)
+        try:
+            print(line)
+        except UnicodeEncodeError:
+            print(line.encode('ascii', 'replace'))
+        if not args.no_page:
+            CURRENT_LINE = CURRENT_LINE + 1
 
 # Define the headers and base CircleCI URLs
 HEADERS = {'Accept' : 'application/json'}
@@ -173,6 +178,10 @@ BASE_CIRCLE_BUILD_URL = 'https://circleci.com/gh'
 BASE_API_URL = 'https://circleci.com/api/v1'
 
 # Utility methods
+def machine_not_supported():
+    print("The -m/--machine option is not supported for this command")
+    sys.exit(1)
+
 def can_display_build(b):
     if LIMIT_TIME is None:
         return True
@@ -181,6 +190,8 @@ def can_display_build(b):
     if build_time is None:
         build_time = b['stop_time']
         if build_time is None:
+            if args.machine:
+                writer.writerow(['ERROR', 'Cannot decode time for build!'])
             pager(Style.BRIGHT + u"ERROR! Cannot decode time for build!")
             pager(u"Display build anyway..." + RESET_TEXT)
             return True
@@ -202,6 +213,11 @@ def display_build(b):
     why = b['why']
     committer_name = b['committer_name']
     committer_email = b['committer_email']
+    if args.machine:
+        writer.writerow(['BUILD', build_num, build_url, status, outcome,
+            lifecycle, vcs_url, vcs_revision, committer_name,
+            committer_email])
+
     pager(u' > #' + build_num.ljust(12) + ' <{0}>'.format(build_url))
     pager(u' |   Status:     ' + get_status_color(status) + \
                 status.ljust(20) + RESET_TEXT  + 'Outcome: ' + \
@@ -242,6 +258,10 @@ def display_build_totals(outcomes_by_branch):
         if len(build_outcomes) > 0:
             bkey_len = len(max(build_outcomes.keys(), key=len))
             for outcome in sorted(build_outcomes.keys()):
+                if args.machine:
+                    writer.writerow(['TOTALS', branch, outcome,
+                        build_outcomes[outcome]])
+
                 message = u' ' + get_status_color(outcome) + \
                     outcome.rjust(bkey_len) + RESET_TEXT + u' : ' + \
                     str(build_outcomes[outcome])
@@ -397,6 +417,9 @@ def artifact_handler():
             url = a['url']
             cpath = a['path']
             pretty_path = a['pretty_path']
+            cpath = a['path']
+            if args.machine:
+                writer.writerow(['ARTIFACTS', node, pretty_path, cpath, url])
             pager(u'{0} : {1}'.format(node, pretty_path))
             if node in artifacts_per_branch[branch]:
                 artifacts_per_branch[branch][node] = \
@@ -404,8 +427,6 @@ def artifact_handler():
             else:
                 artifacts_per_branch[branch][node] = 1
             if args.verbose:
-                cpath = a['path']
-                pretty_path = a['pretty_path']
                 pager(u'  Path: {0}'.format(cpath))
                 pager(u'  URL:  {0}'.format(url))
                 pager()
@@ -421,6 +442,9 @@ def artifact_handler():
             if len(artifacts_per_branch[b]) >= 1:
                 for k in sorted(artifacts_per_branch[b].keys()):
                     pager(u' #{0} : {1}'.format(k, artifacts_per_branch[b][k]))
+                    if args.machine:
+                        writer.writerow(['TOTALS', b, k,
+                            artifacts_per_branch[b][k]])
             else:
                 pager(u' No artifacts')
 
@@ -439,6 +463,9 @@ def build_handler():
         last_build_handler()
 
 def cancel_build_handler():
+    if args.machine:
+        machine_not_supported()
+
     if args.param:
         builds = [get_build_data(args.param)]
     else:
@@ -547,6 +574,9 @@ def list_builds_handler():
                     format(total_completed, avg_time_completed))
 
 def list_projects_handler():
+    if args.machine:
+        machine_not_supported()
+
     api_url = "{0}/projects?circle-token={1}".format(BASE_API_URL, PASSTOKEN)
     r = requests.get(api_url, headers=HEADERS)
     projects = r.json()
@@ -601,6 +631,9 @@ def new_build_handler():
     else:
         branch = get_current_branch()
 
+    if args.machine:
+        machine_not_supported()
+
     pager(u'branch: ' + Fore.YELLOW + Style.BRIGHT + branch + RESET_TEXT)
     proceed = ''
     if not args.yes:
@@ -625,6 +658,9 @@ def new_build_handler():
         pager('Not triggering new build.')
 
 def retry_build_handler():
+    if args.machine:
+        machine_not_supported()
+
     if args.param:
         builds = [get_build_data(args.param)]
     else:
@@ -715,9 +751,9 @@ if args.list:
     desc_len = MAX_PAGE_WIDTH - 5 - key_len
     for cmd in sorted(commands.keys()):
         desc = textwrap.wrap(commands[cmd]['desc'], desc_len)
-        pager('  {0} : {1}'.format(cmd.rjust(key_len), desc[0]))
+        print('  {0} : {1}'.format(cmd.rjust(key_len), desc[0]))
         for i in range(1, len(desc)):
-            pager(' ' * (5 + key_len) + '{0}'.format(desc[i]))
+            print(' ' * (5 + key_len) + '{0}'.format(desc[i]))
     sys.exit(0)
 
 if args.command in commands:
