@@ -563,15 +563,21 @@ def list_builds_handler():
         pager(u" TOTAL BUILDS : {0}".format(total_builds))
         pager()
         if total_successful > 0:
-            avg_time_successful = datetime.timedelta(milliseconds=
-                sum_successful / total_successful)
+            avg_milli = sum_successful / total_successful
+            avg_time_successful = datetime.timedelta(milliseconds=avg_milli)
             pager(u" TOTAL SUCCESSFUL : {0}\tAVERAGE TIME SUCCESSFUL : {1}".\
                     format(total_successful, avg_time_successful))
+            if args.machine:
+                writer.writerow(['SUMMARY_SUCCESSFUL', total_successful,
+                    avg_milli])
         if total_completed > 0:
-            avg_time_completed = datetime.timedelta(milliseconds=
-                sum_completed / total_completed)
+            avg_milli = sum_completed / total_completed
+            avg_time_completed = datetime.timedelta(milliseconds=avg_milli)
             pager(u" TOTAL COMPLETED  : {0}\tAVERAGE TIME COMPLETED  : {1}".\
                     format(total_completed, avg_time_completed))
+            if args.machine:
+                writer.writerow(['SUMMARY_COMPLETED', total_completed,
+                    avg_milli])
 
 def list_projects_handler():
     if args.machine:
