@@ -26,7 +26,7 @@ pip install --user git-circle
 
 ```
 usage: git-circle [-h] [-v] [-np] [-l] [-s] [-ar] [-al] [--limit LIMIT]
-                  [--today] [--yesterday] [-d DATE]
+                  [--today] [--yesterday] [-d DATE] [-y]
                   [command] [param]
 
 positional arguments:
@@ -52,6 +52,7 @@ optional arguments:
                         commands support this)
   -d DATE, --date DATE  Limit responses to just those from a certain date,
                         format YYYY-MM-DD (not all commands support this)
+  -y, --yes             Automatically answer all queries with a 'yes'
 ```
 
 ## git-circle Commands
@@ -118,6 +119,51 @@ obtain from CircleCI. The default is 30, and the maximum is 100.
 * `--yesterday` : Limit the recent builds to only those with yesterday's date.
 * `--date` : Limit the recent builds to only those found on a given date. The
 date format is YYYY-MM-DD.
+
+### `new-build`
+
+This command will trigger a new build for a given branch. If called with a
+branch name, will us that for the new build. If called without a branch name,
+will use the current branch.
+
+This command will prompt you for comfirmation of the build, unless you specify
+the `-y`/`--yes` option.
+
+Usage:
+
+```
+git circle new-build [branch_name] [-v] [-np] [-y]
+```
+
+### `cancel`
+
+This command will cancel a build. If called with a build number, will cancel
+that build. If called without a build number, will use the latest build for the
+current branch.
+
+This command will prompt you for confirmation of the cancellation, unless you
+specify the `-y`/`--yes` option.
+
+Usage:
+
+```
+git circle cancel [build_number] [-v] [-np] [-y]
+```
+
+### `retry`
+
+This command will retry a build. If called with a build number, will attempt
+to retry that build. If called without a build number, will use the latest
+build for the current branch.
+
+This command will prompt you for confirmation of the retry, unless you specify
+the `-y`/`--yes` option.
+
+Usage:
+
+```
+git circle retry [build_number] [-v] [-np] [-y]
+```
 
 ### `artifacts`
 
