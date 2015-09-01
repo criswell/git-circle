@@ -48,6 +48,8 @@ parser.add_argument("--yesterday", help="Limit responses to just those " + \
 parser.add_argument("-d", "--date", help="Limit responses to just those " + \
         "from a certain date, format YYYY-MM-DD (not all commands " + \
         "support this)", default=None)
+parser.add_argument("-y", "--yes", help="Automatically answer all queries " + \
+        "with a 'yes'", action="store_true")
 args = parser.parse_args()
 
 try:
@@ -456,9 +458,11 @@ def cancel_build_handler():
         if b['lifecycle'] == 'finished':
             pager("Build already finished, no need to cancel...")
             sys.exit()
-        proceed = get_input('Enter "Yes" to cancel this build: ').strip()
-        assert isinstance(proceed, str)
-        if proceed.lower() == 'yes':
+        proceed = ''
+        if not args.yes:
+            proceed = get_input('Enter "Yes" to cancel this build: ').strip()
+            assert isinstance(proceed, str)
+        if proceed.lower() == 'yes' or args.yes:
             api_url = '{0}/project/{1}/{2}/{3}/cancel?circle-token={4}'.format(
                 BASE_API_URL, CIRCLE_USER, CIRCLE_PROJ, b['build_num'],
                 PASSTOKEN)
@@ -598,10 +602,12 @@ def new_build_handler():
         branch = get_current_branch()
 
     pager(u'branch: ' + Fore.YELLOW + Style.BRIGHT + branch + RESET_TEXT)
-    proceed = get_input('Enter "Yes" to trigger a new build for this branch: ')
-    assert isinstance(proceed, str)
-    proceed = proceed.strip()
-    if proceed.lower() == 'yes':
+    proceed = ''
+    if not args.yes:
+        proceed = get_input('Enter "Yes" to trigger a new build for this branch: ')
+        assert isinstance(proceed, str)
+        proceed = proceed.strip()
+    if proceed.lower() == 'yes' or args.yes:
         api_url = '{0}/project/{1}/{2}/tree/{3}?circle-token={4}'.format(
                 BASE_API_URL, CIRCLE_USER, CIRCLE_PROJ, branch,
                 PASSTOKEN)
@@ -635,9 +641,11 @@ def retry_build_handler():
             sys.exit(1)
         display_build(b)
         pager()
-        proceed = get_input('Enter "Yes" to retry this build: ').strip()
-        assert isinstance(proceed, str)
-        if proceed.lower() == 'yes':
+        proceed = ''
+        if not args.yes:
+            proceed = get_input('Enter "Yes" to retry this build: ').strip()
+            assert isinstance(proceed, str)
+        if proceed.lower() == 'yes' or args.yes:
             api_url = '{0}/project/{1}/{2}/{3}/retry?circle-token={4}'.format(
                 BASE_API_URL, CIRCLE_USER, CIRCLE_PROJ, b['build_num'],
                 PASSTOKEN)
