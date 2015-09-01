@@ -591,6 +591,33 @@ def list_projects_handler():
         pager(spacer)
         display_build_totals(build_outcomes)
 
+def new_build_handler():
+    if args.param:
+        branch = args.param
+    else:
+        branch = get_current_branch()
+
+    pager(u'branch: ' + Fore.YELLOW + Style.BRIGHT + branch + RESET_TEXT)
+    proceed = get_input('Enter "Yes" to trigger a new build for this branch: ')
+    assert isinstance(proceed, str)
+    proceed = proceed.strip()
+    if proceed.lower() == 'yes':
+        api_url = '{0}/project/{1}/{2}/tree/{3}?circle-token={4}'.format(
+                BASE_API_URL, CIRCLE_USER, CIRCLE_PROJ, branch,
+                PASSTOKEN)
+        r = requests.post(api_url, headers=HEADERS)
+        b = r.json()
+        if r.status_code == 200 or r.status_code == 201:
+            display_build(b)
+        else:
+            if 'message' in b:
+                pager(b['message'])
+            else:
+                pager('Error triggering new build, got code {0}!'.format(
+                    r.status_code))
+    else:
+        pager('Not triggering new build.')
+
 def retry_build_handler():
     if args.param:
         builds = [get_build_data(args.param)]
@@ -657,8 +684,14 @@ commands = {
         'list-builds' : {
             'method' : list_builds_handler,
             'desc' : 'List the recent builds for a given branch. If ' + \
-                    'called with param set, will use that branch. If ' + \
-                    'no param, will use the current branch'
+                    'called with param set to a branch, will use that ' + \
+                    'branch. If no param, will use the current branch'
+            },
+        'new-build' : {
+            'method' : new_build_handler,
+            'desc' : 'Trigger a new build. If called with param set to a ' + \
+                    'branch, will use that branch. If no param, will use ' + \
+                    'the current branch'
             },
         'retry' : {
             'method' : retry_build_handler,
