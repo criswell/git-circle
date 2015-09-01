@@ -31,7 +31,7 @@ contains an artifact.
   * **`<url>`** is the URL of the artifact.
 * **TOTALS** is the unique identifier saying that the following line contains
 artifact totals.
-  * **`<branch_name>`** is the name of the branch this artifact belongs to.
+  * **`<branch_name>`** is the name of the branch these artifacts belongs to.
   * **`<node>`** is the node the artifacts can be found on.
   * **`<total_artifacts>`** is the total number of artifacts found on that
   node.
