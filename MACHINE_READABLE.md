@@ -56,7 +56,7 @@ build information.
   * **`<outcome>`** is the outcome of the build.
   * **`<lifecycle>`** is the lifecycle of the build.
   * **`<vcs_url>`** is the URL for the git repo.
-  * **`<vcs_revision>`** is the has of the latest commit this build includes.
+  * **`<vcs_revision>`** is the hash of the latest commit this build includes.
   * **`<committer_name>`** is the name of the person who made the commit.
   * **`<committer_email>`** is the email of the person who made the commit.
 * **TOTALS** is the unique identifier saying that the following line contains
