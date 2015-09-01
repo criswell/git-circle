@@ -467,7 +467,8 @@ def cancel_build_handler():
         else:
             pager('Not cancelling build!')
     else:
-        print("Error! No builds found for branch {0}".format(branch))
+        print("Error! No builds found!")
+        sys.exit(1)
 
 def last_build_handler():
     builds = get_latest_builds()
@@ -590,6 +591,38 @@ def list_projects_handler():
         pager(spacer)
         display_build_totals(build_outcomes)
 
+def retry_build_handler():
+    if args.param:
+        builds = [get_build_data(args.param)]
+    else:
+        builds = get_latest_builds()
+
+    if isinstance(builds, dict):
+        if 'message' in builds:
+            print(builds['message'])
+            sys.exit(1)
+    if len(builds) >= 1:
+        b = builds[0]
+        if 'message' in b:
+            print(b['message'])
+            sys.exit(1)
+        display_build(b)
+        pager()
+        proceed = get_input('Enter "Yes" to retry this build: ').strip()
+        assert isinstance(proceed, str)
+        if proceed.lower() == 'yes':
+            api_url = '{0}/project/{1}/{2}/{3}/retry?circle-token={4}'.format(
+                BASE_API_URL, CIRCLE_USER, CIRCLE_PROJ, b['build_num'],
+                PASSTOKEN)
+            r = requests.post(api_url, headers=HEADERS)
+            display_build(r.json())
+        else:
+            pager('Not retrying build!')
+
+    else:
+        print("Error! No builds found!")
+        sys.exit(1)
+
 commands = {
         'artifacts' : {
             'method' : artifact_handler,
@@ -626,6 +659,12 @@ commands = {
             'desc' : 'List the recent builds for a given branch. If ' + \
                     'called with param set, will use that branch. If ' + \
                     'no param, will use the current branch'
+            },
+        'retry' : {
+            'method' : retry_build_handler,
+            'desc' : 'Retry a build. If called with param set to a build ' + \
+                    'number, will retry that build. If no param, will ' + \
+                    'retry the latest build for the current branch'
             }
         }
 
