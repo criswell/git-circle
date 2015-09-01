@@ -123,7 +123,7 @@ date format is YYYY-MM-DD.
 ### `new-build`
 
 This command will trigger a new build for a given branch. If called with a
-branch name, will us that for the new build. If called without a branch name,
+branch name, will use that for the new build. If called without a branch name,
 will use the current branch.
 
 This command will prompt you for comfirmation of the build, unless you specify
