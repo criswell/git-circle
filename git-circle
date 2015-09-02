@@ -202,6 +202,13 @@ def can_display_build(b):
             int(date_tuple[2]))
     return build_date == LIMIT_TIME
 
+def get_displayable_builds(builds):
+    new_builds = []
+    for b in builds:
+        if can_display_build(b):
+            new_builds.append(b)
+    return new_builds
+
 def display_build(b):
     build_num = str(b['build_num'])
     build_url = b['build_url']
@@ -531,7 +538,10 @@ def list_builds_handler():
     sum_successful = 0
     sum_completed = 0
     for branch in branches:
-        builds = get_latest_builds(branch)
+        builds = get_displayable_builds(get_latest_builds(branch))
+        if len(builds) < 1:
+            continue
+
         pager(u'' + Fore.YELLOW + Style.BRIGHT + branch + RESET_TEXT)
         build_outcomes = {}
         for b in builds:
