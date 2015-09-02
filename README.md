@@ -203,7 +203,8 @@ readable output.
 
 For more information, see [MACHINE_READABLE](MACHINE_READABLE.md)
 
-## TODO
+## FAQ & TODO
 
+* [FAQ](FAQ.md)
 * [TODO](TODO.md)
 
