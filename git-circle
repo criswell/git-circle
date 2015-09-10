@@ -350,7 +350,7 @@ def get_remote_branches():
         for l in lines:
             if isinstance(l, bytes):
                 l = l.decode('utf-8')
-            branches.append('/'.join(l.split('/')[2:]))
+            branches.append('/'.join(l.strip().split('/')[2:]))
     except subprocess.CalledProcessError:
         branches = []
     return branches
