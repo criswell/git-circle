@@ -10,7 +10,7 @@ import datetime
 import csv
 from colorama import init, Fore, Style
 
-__version__ = "0.0.5"
+__version__ = "0.0.6"
 
 try:
     from urllib.parse import urlparse
@@ -220,10 +220,14 @@ def display_build(b):
     why = b['why']
     committer_name = b['committer_name']
     committer_email = b['committer_email']
+    build_time = b['build_time_millis']
+    start_time = b['start_time']
+    stop_time = b['stop_time']
+    branch = b['branch']
     if args.machine:
-        writer.writerow(['BUILD', build_num, build_url, status, outcome,
+        writer.writerow(['BUILD', branch, build_num, build_url, status, outcome,
             lifecycle, vcs_url, vcs_revision, committer_name,
-            committer_email])
+            committer_email, build_time, start_time, stop_time])
 
     pager(u' > #' + build_num.ljust(12) + ' <{0}>'.format(build_url))
     pager(u' |   Status:     ' + get_status_color(status) + \
@@ -238,9 +242,6 @@ def display_build(b):
     if args.verbose:
         subject = str(b['subject'])
         body = b['body']
-        start_time = b['start_time']
-        stop_time = b['stop_time']
-        build_time = b['build_time_millis']
         pager(u' |   Start Time: ' + str(start_time))
         pager(u' |   Stop Time:  ' + str(stop_time))
         pager(u' |   Build Time: ' + str(build_time))

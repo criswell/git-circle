@@ -42,7 +42,7 @@ Each of the commands which display build information will display with the
 following format:
 
 ```
-BUILD,<build_number>,<circle_url>,<status>,<outcome>,<lifecycle>,<vcs_url>,<vcs_revision>,<committer_name>,<committer_email>
+BUILD,<branch>,<build_number>,<circle_url>,<status>,<outcome>,<lifecycle>,<vcs_url>,<vcs_revision>,<committer_name>,<committer_email>,<build_time>,<start_time>,<stop_time>
 TOTALS,<branch_name>,<outcome>,<total>
 SUMMARY_SUCCESSFUL,<total_successful>,<average_duration>
 SUMMARY_COMPLETED,<total_completed>,<average_duration>
@@ -50,6 +50,7 @@ SUMMARY_COMPLETED,<total_completed>,<average_duration>
 
 * **BUILD** is the unique identifier saying that the following line contains
 build information.
+  * **`<branch>`** is the branch this build was for.
   * **`<build_number>`** is the build number.
   * **`<circle_url>`** is the URL for the build.
   * **`<status>`** is the status of the build.
@@ -59,6 +60,9 @@ build information.
   * **`<vcs_revision>`** is the hash of the latest commit this build includes.
   * **`<committer_name>`** is the name of the person who made the commit.
   * **`<committer_email>`** is the email of the person who made the commit.
+  * **`<build_time>`** is the build time in milliseconds.
+  * **`<start_time>`** is the time the build started.
+  * **`<stop_time>`** is the time the build ended.
 * **TOTALS** is the unique identifier saying that the following line contains
 build totals.
   * **`<branch_name>`** is the name of the branch in question.
