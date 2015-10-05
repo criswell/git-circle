@@ -231,8 +231,13 @@ def display_build(b):
         try:
             writer.writerow(row)
         except UnicodeEncodeError:
-            row = [l.encode('ascii', 'replace') for l in row]
-            writer.writerow(row)
+            asc_row = []
+            for l in row:
+                if type(l) == type(u''):
+                    asc_row.append(l.encode('ascii', 'replace'))
+                else:
+                    asc_row.append(l)
+            writer.writerow(asc_row)
 
     pager(u' > #' + build_num.ljust(12) + ' <{0}>'.format(build_url))
     pager(u' |   Status:     ' + get_status_color(status) + \
