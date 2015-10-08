@@ -10,7 +10,7 @@ import datetime
 import csv
 from colorama import init, Fore, Style
 
-__version__ = "0.0.7"
+__version__ = "0.0.8"
 
 try:
     from urllib.parse import urlparse
@@ -565,8 +565,9 @@ def list_builds_handler():
                     total_successful = total_successful + 1
                     sum_successful = sum_successful + b['build_time_millis']
                 if b['outcome'] is not None and outcome != 'canceled':
-                    total_completed = total_completed + 1
-                    sum_completed = sum_completed + b['build_time_millis']
+                    if type(b['build_time_millis']) is type(int):
+                        total_completed = total_completed + 1
+                        sum_completed = sum_completed + b['build_time_millis']
                 if outcome in build_outcomes:
                     build_outcomes[outcome] = build_outcomes[outcome] + 1
                 else:
