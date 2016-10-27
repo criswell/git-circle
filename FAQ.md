@@ -26,3 +26,15 @@ if [ -d "$HOME/Library/Python/2.7/bin" ]; then
 fi
 ```
 
+## I'm getting an error on the `-m` option from a script. Help?
+
+If `git-circle` is working fine when run manually, but you're getting the
+following error when run from a script:
+
+```
+git-circle: error: unrecognized arguments: -m
+```
+
+This likely means that you've been running the script from a virtualenv and
+that the virtualenv is not being activated properly in the script.
+
