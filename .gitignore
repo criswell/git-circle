@@ -13,4 +13,4 @@ eggs
 fake-eggs
 parts
 dist
-
+*.swp
